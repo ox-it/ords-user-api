@@ -27,7 +27,7 @@
         <property name="c3p0.max_statements">50</property>
         <property name="hibernate.c3p0.idle_test_period">3000</property>
         <property name="connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
-        <mapping class="ox.ac.uk.it.ords.api.user.model.User"/>
+        <mapping class="uk.ac.ox.it.ords.api.user.model.User"/>
         <mapping class="uk.ac.ox.it.ords.security.model.UserRole"/>
         <mapping class="uk.ac.ox.it.ords.security.model.Permission"/>
     </session-factory>
