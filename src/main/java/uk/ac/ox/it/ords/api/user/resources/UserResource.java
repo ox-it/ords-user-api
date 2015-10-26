@@ -8,7 +8,9 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -17,6 +19,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.shiro.SecurityUtils;
 
+import uk.ac.ox.it.ords.api.user.model.OtherUser;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.permissions.UserPermissions;
 import uk.ac.ox.it.ords.api.user.services.UserService;
@@ -73,7 +76,29 @@ public class UserResource {
 	@Path("/")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUser() throws Exception{
+	public Response getUser(
+			@QueryParam("name") final String name
+			) throws Exception{
+		
+		//
+		// If this is a query by principal name...
+		//
+		if (name != null){
+			User user = UserService.Factory.getInstance().getUserByPrincipalName(name);
+
+			if (user == null){
+				throw new NotFoundException();
+			}
+			//
+			// We need to filter the output, so we wrap it in the OtherUser return class
+			//
+			OtherUser otherUser = new OtherUser(user);
+			return Response.ok(otherUser).build();
+		}
+		
+		//
+		// Otherwise we return the current Subject
+		//
 		
 		//
 		// The user is logged in
@@ -107,6 +132,43 @@ public class UserResource {
 		}
 	
 		return Response.ok(user).build();
+	}
+	
+	/**
+	 * Get the User for a given id
+	 * @return
+	 * @throws Exception 
+	 */
+	@Path("/{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUser(
+			@PathParam("id") final int id
+			) throws Exception{
+		
+		//
+		// The user is logged in
+		// 
+		if (!SecurityUtils.getSubject().isAuthenticated()){
+			throw new NotAuthorizedException(Response.status( 401 ).build());
+		}
+				
+		User user = UserService.Factory.getInstance().getUser(id);
+		
+		//
+		// There is no user for the principal.
+		//
+		if (user == null){
+
+			throw new NotFoundException();
+		}
+		
+		//
+		// We need to filter the output, so we wrap it in the OtherUser return class
+		//
+		OtherUser otherUser = new OtherUser(user);
+	
+		return Response.ok(otherUser).build();
 	}
 
 }
