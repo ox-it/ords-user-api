@@ -8,6 +8,8 @@ import uk.ac.ox.it.ords.api.user.services.impl.hibernate.UserServiceImpl;
 
 public interface UserService {
 	
+	public boolean validate(User user);
+	
 	public User getUserByPrincipalName(String principalname) throws Exception;
 	
 	public User getUserByVerificationId(String verificationId) throws Exception;
@@ -16,7 +18,7 @@ public interface UserService {
 	
 	public User getUserByOdbcUser(String odbcuser) throws Exception;
 	
-	public User getUser(int userId);
+	public User getUser(int userId) throws Exception;
 	
 	public List<User> getUserList();
 	
@@ -24,7 +26,7 @@ public interface UserService {
     
     public void createUser(User user) throws Exception;
     
-    public boolean deleteUser(User user);
+    public void deleteUser(User user) throws Exception;
     
 	/**
 	 * Factory for obtaining implementations

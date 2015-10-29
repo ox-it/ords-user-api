@@ -118,11 +118,6 @@ public class AbstractResourceTest extends AbstractShiroTest {
 		admin.setRole("administrator");
 		session.save(admin);
 		
-		UserRole pingu = new UserRole();
-		pingu.setPrincipalName("pingu");
-		pingu.setRole("user");
-		session.save(pingu);
-		
 		UserRole anonymous = new UserRole();
 		anonymous.setPrincipalName("anonymous");
 		anonymous.setRole("anonymous");

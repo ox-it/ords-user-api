@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.it.ords.api.user.model.User;
+import uk.ac.ox.it.ords.api.user.services.AuditService;
+import uk.ac.ox.it.ords.api.user.services.UserRoleService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.impl.AbstractUserService;
 import uk.ac.ox.it.ords.security.model.UserRole;
@@ -33,6 +35,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		Session session = this.sessionFactory.getCurrentSession();
 		try {
 			session.beginTransaction();
+			@SuppressWarnings("unchecked")
 			List<User> users = (List<User>) session.createCriteria(User.class).add(Restrictions.eq("principalName", principalname)).list();
 			session.getTransaction().commit();
 			if (users.size() == 1){
@@ -57,6 +60,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		Session session = this.sessionFactory.getCurrentSession();
 		try {
 			session.beginTransaction();
+			@SuppressWarnings("unchecked")
 			List<User> users = (List<User>) session.createCriteria(User.class).add(Restrictions.eq("email", email)).list();
 			session.getTransaction().commit();
 			if (users.size() == 1){
@@ -76,9 +80,19 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		return null;
 	}
 
-	public User getUser(int userId) {
-		// TODO Auto-generated method stub
-		return null;
+	public User getUser(int userId) throws Exception {
+		Session session = this.sessionFactory.getCurrentSession();
+		try {
+			session.beginTransaction();
+			User user = (User) session.get(User.class, userId);
+			session.getTransaction().commit();
+			return user;
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			throw e;
+		} finally {
+			  HibernateUtils.closeSession();
+		}
 	}
 
 	public List<User> getUserList() {
@@ -94,9 +108,13 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 	public void createUser(User user) throws Exception {
 		Session session = this.sessionFactory.getCurrentSession();
 		
-		if (user.getPrincipalName() == null) {
-            user.setPrincipalName(user.getEmail());
-        }
+		//
+		// This can't actually happen as we REQUIRE the principal to be the same
+		// as that of the subject creating the user
+		//
+		//if (user.getPrincipalName() == null) {
+        //    user.setPrincipalName(user.getEmail());
+        //}
 		
         if (user.getVerificationUuid() == null) {
             user.setVerificationUuid(UUID.randomUUID().toString());
@@ -106,6 +124,33 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 			session.beginTransaction();
 			session.save(user);
 			session.getTransaction().commit();
+			AuditService.Factory.getInstance().createSignupRecord(user);
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			throw e;
+		} finally {
+			  HibernateUtils.closeSession();
+		}
+		
+		//
+		// Every new user gets the "User" role
+		//
+		UserRole userRole = new UserRole();
+		userRole.setPrincipalName(user.getPrincipalName());
+		userRole.setRole("user");
+		UserRoleService.Factory.getInstance().createUserRole(userRole);
+	}
+
+	public void deleteUser(User user) throws Exception {
+
+		List<UserRole> userRoles = UserRoleService.Factory.getInstance().getUserRolesForUser(user);
+		
+		Session session = this.sessionFactory.getCurrentSession();
+
+		try {
+			session.beginTransaction();
+			session.delete(user);
+			session.getTransaction().commit();
 			// TODO audit
 		} catch (Exception e) {
 			session.getTransaction().rollback();
@@ -113,11 +158,14 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		} finally {
 			  HibernateUtils.closeSession();
 		}
-	}
-
-	public boolean deleteUser(User user) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		//
+		// Remove all their roles
+		//
+		for (UserRole userRole : userRoles){
+			UserRoleService.Factory.getInstance().deleteUserRole(userRole);
+		}
+		
 	}
 
 

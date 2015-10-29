@@ -2,6 +2,7 @@ package uk.ac.ox.it.ords.api.user.resources;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotAuthorizedException;
@@ -22,9 +23,40 @@ import org.apache.shiro.SecurityUtils;
 import uk.ac.ox.it.ords.api.user.model.OtherUser;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.permissions.UserPermissions;
+import uk.ac.ox.it.ords.api.user.services.AuditService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 
 public class UserResource {
+	
+	@Path("/{id}")
+	@DELETE
+	public Response deleteUser(
+			@PathParam("id") final int id
+			) throws Exception{
+		
+		//
+		// Check auth
+		//
+		if (!SecurityUtils.getSubject().isPermitted(UserPermissions.USER_DELETE_ALL)){
+			AuditService.Factory.getInstance().createNotAuthRecord(UserPermissions.USER_DELETE_ALL, String.valueOf(id));
+			throw new ForbiddenException();
+		}
+		
+		User user = UserService.Factory.getInstance().getUser(id);
+		
+		//
+		// There is no user.
+		//
+		if (user == null){
+
+			throw new NotFoundException();
+		}
+		
+		UserService.Factory.getInstance().deleteUser(user);
+		
+		return Response.ok().build();
+		
+	}
 	
 	@Path("/")
 	@POST
@@ -36,10 +68,26 @@ public class UserResource {
 			) throws Exception{
 		
 		//
-		// Check auth
+		// We must have a logged-in user
 		//
-		if (!SecurityUtils.getSubject().isPermitted(UserPermissions.USER_CREATE_SELF)){
-			throw new ForbiddenException();
+		if (!SecurityUtils.getSubject().isAuthenticated()){
+			throw new NotAuthorizedException(Response.status( 401 ).build());
+		}
+		
+		//
+		// The special anonymous user provides public permissions;
+		// if this is the principal, we treat them as unauthenticated
+		//
+		if (SecurityUtils.getSubject().getPrincipal().equals("anonymous")){
+			AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
+			throw new NotAuthorizedException(Response.status( 401 ).build());				
+		}
+		
+		//
+		// If the principal is null, set it to the current subject
+		//
+		if (user.getPrincipalName() == null || user.getPrincipalName() == ""){
+			user.setPrincipalName(SecurityUtils.getSubject().getPrincipal().toString());
 		}
 		
 		//
@@ -53,9 +101,7 @@ public class UserResource {
 		// Override with new user defaults
 		//
 		user.setStatus(User.AccountStatus.PENDING_EMAIL_VERIFICATION.name());
-		user.setVerificationUuid("test");
 		user.setPrincipalType("");
-		
 		
 		//
 		// Create the user
@@ -124,13 +170,14 @@ public class UserResource {
 		// The user is logged in
 		// 
 		if (!SecurityUtils.getSubject().isAuthenticated()){
+			AuditService.Factory.getInstance().createNotAuthRecord("User:query", null);
 			throw new NotAuthorizedException(Response.status( 401 ).build());
 		}
 		
 		String principalName = SecurityUtils.getSubject().getPrincipal().toString();
 		
 		User user = UserService.Factory.getInstance().getUserByPrincipalName(principalName);
-		
+
 		//
 		// There is no user for the principal.
 		//
@@ -140,6 +187,7 @@ public class UserResource {
 			// if this is the principal, we treat them as unauthenticated
 			//
 			if (principalName.equals("anonymous")){
+				AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
 				throw new NotAuthorizedException(Response.status( 401 ).build());				
 			}
 			
@@ -170,7 +218,8 @@ public class UserResource {
 		// The user is logged in
 		// 
 		if (!SecurityUtils.getSubject().isAuthenticated()){
-			throw new NotAuthorizedException(Response.status( 401 ).build());
+			AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
+			throw new ForbiddenException();
 		}
 				
 		User user = UserService.Factory.getInstance().getUser(id);
@@ -179,7 +228,6 @@ public class UserResource {
 		// There is no user for the principal.
 		//
 		if (user == null){
-
 			throw new NotFoundException();
 		}
 		
