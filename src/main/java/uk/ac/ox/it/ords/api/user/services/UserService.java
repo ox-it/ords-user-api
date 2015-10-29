@@ -10,11 +10,11 @@ public interface UserService {
 	
 	public User getUserByPrincipalName(String principalname) throws Exception;
 	
-	public User getUserByVerificationId(String verificationId);
+	public User getUserByVerificationId(String verificationId) throws Exception;
+		
+	public User getUserByEmailAddress(String email) throws Exception;
 	
-	public User getUserByEmailAddress(String email);
-	
-	public User getUserByOdbcUser(String odbcuser);
+	public User getUserByOdbcUser(String odbcuser) throws Exception;
 	
 	public User getUser(int userId);
 	

@@ -1,6 +1,7 @@
 package uk.ac.ox.it.ords.api.user.services.impl.hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -52,9 +53,22 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		return null;
 	}
 
-	public User getUserByEmailAddress(String email) {
-		// TODO Auto-generated method stub
-		return null;
+	public User getUserByEmailAddress(String email) throws Exception {
+		Session session = this.sessionFactory.getCurrentSession();
+		try {
+			session.beginTransaction();
+			List<User> users = (List<User>) session.createCriteria(User.class).add(Restrictions.eq("email", email)).list();
+			session.getTransaction().commit();
+			if (users.size() == 1){
+				return users.get(0);
+			} 
+			return null;
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			throw e;
+		} finally {
+			  HibernateUtils.closeSession();
+		}
 	}
 
 	public User getUserByOdbcUser(String odbcuser) {
@@ -79,10 +93,20 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 
 	public void createUser(User user) throws Exception {
 		Session session = this.sessionFactory.getCurrentSession();
+		
+		if (user.getPrincipalName() == null) {
+            user.setPrincipalName(user.getEmail());
+        }
+		
+        if (user.getVerificationUuid() == null) {
+            user.setVerificationUuid(UUID.randomUUID().toString());
+        }
+        
 		try {
 			session.beginTransaction();
 			session.save(user);
 			session.getTransaction().commit();
+			// TODO audit
 		} catch (Exception e) {
 			session.getTransaction().rollback();
 			throw e;
@@ -95,5 +119,6 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		// TODO Auto-generated method stub
 		return false;
 	}
+
 
 }

@@ -77,7 +77,8 @@ public class UserResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser(
-			@QueryParam("name") final String name
+			@QueryParam("name") final String name,
+			@QueryParam("email") final String email
 			) throws Exception{
 		
 		//
@@ -89,11 +90,30 @@ public class UserResource {
 			if (user == null){
 				throw new NotFoundException();
 			}
+			
 			//
 			// We need to filter the output, so we wrap it in the OtherUser return class
 			//
 			OtherUser otherUser = new OtherUser(user);
 			return Response.ok(otherUser).build();
+		}
+		
+		//
+		// Or a query by email name...
+		//
+		if (email != null){
+			User user = UserService.Factory.getInstance().getUserByEmailAddress(email);
+			
+			if (user == null){
+				throw new NotFoundException();
+			}
+			
+			//
+			// We need to filter the output, so we wrap it in the OtherUser return class
+			//
+			OtherUser otherUser = new OtherUser(user);
+			return Response.ok(otherUser).build();
+			
 		}
 		
 		//
