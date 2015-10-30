@@ -39,7 +39,7 @@ public class UserResource {
 		//
 		if (!SecurityUtils.getSubject().isPermitted(UserPermissions.USER_DELETE_ALL)){
 			AuditService.Factory.getInstance().createNotAuthRecord(UserPermissions.USER_DELETE_ALL, String.valueOf(id));
-			throw new ForbiddenException();
+			return Response.status(403).build();
 		}
 		
 		User user = UserService.Factory.getInstance().getUser(id);
@@ -48,8 +48,7 @@ public class UserResource {
 		// There is no user.
 		//
 		if (user == null){
-
-			throw new NotFoundException();
+			return Response.status(404).build();
 		}
 		
 		UserService.Factory.getInstance().deleteUser(user);
@@ -71,7 +70,7 @@ public class UserResource {
 		// We must have a logged-in user
 		//
 		if (!SecurityUtils.getSubject().isAuthenticated()){
-			throw new NotAuthorizedException(Response.status( 401 ).build());
+			return Response.status(401).build();
 		}
 		
 		//
@@ -80,7 +79,7 @@ public class UserResource {
 		//
 		if (SecurityUtils.getSubject().getPrincipal().equals("anonymous")){
 			AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
-			throw new NotAuthorizedException(Response.status( 401 ).build());				
+			return Response.status(401).build();
 		}
 		
 		//
@@ -94,7 +93,7 @@ public class UserResource {
 		// Check the principal name and the user match
 		//
 		if (!user.getPrincipalName().equals(SecurityUtils.getSubject().getPrincipal())){
-			throw new BadRequestException();
+			return Response.status(400).build();
 		}
 		
 		//
@@ -134,7 +133,7 @@ public class UserResource {
 			User user = UserService.Factory.getInstance().getUserByPrincipalName(name);
 
 			if (user == null){
-				throw new NotFoundException();
+				return Response.status(404).build();
 			}
 			
 			//
@@ -151,7 +150,7 @@ public class UserResource {
 			User user = UserService.Factory.getInstance().getUserByEmailAddress(email);
 			
 			if (user == null){
-				throw new NotFoundException();
+				return Response.status(404).build();
 			}
 			
 			//
@@ -171,7 +170,7 @@ public class UserResource {
 		// 
 		if (!SecurityUtils.getSubject().isAuthenticated()){
 			AuditService.Factory.getInstance().createNotAuthRecord("User:query", null);
-			throw new NotAuthorizedException(Response.status( 401 ).build());
+			return Response.status(401).build();
 		}
 		
 		String principalName = SecurityUtils.getSubject().getPrincipal().toString();
@@ -188,7 +187,7 @@ public class UserResource {
 			//
 			if (principalName.equals("anonymous")){
 				AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
-				throw new NotAuthorizedException(Response.status( 401 ).build());				
+				return Response.status(401).build();
 			}
 			
 			//
@@ -196,7 +195,7 @@ public class UserResource {
 			// they have authenticated. In which case we need to prompt
 			// the client to register them.
 			//
-			throw new NotFoundException();
+			return Response.status(404).build();
 		}
 	
 		return Response.ok(user).build();
@@ -219,7 +218,7 @@ public class UserResource {
 		// 
 		if (!SecurityUtils.getSubject().isAuthenticated()){
 			AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
-			throw new ForbiddenException();
+			return Response.status(403).build();
 		}
 				
 		User user = UserService.Factory.getInstance().getUser(id);
@@ -228,7 +227,7 @@ public class UserResource {
 		// There is no user for the principal.
 		//
 		if (user == null){
-			throw new NotFoundException();
+			return Response.status(404).build();
 		}
 		
 		//
