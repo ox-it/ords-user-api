@@ -95,6 +95,7 @@ public class UserRoleServiceImpl implements UserRoleService {
 		// Create new role
 		//
 		UserRole newRole = new UserRole();
+		newRole.setPrincipalName(user.getPrincipalName());
 		if (user.getPrincipalName().contains("ox.ac.uk")){
 			newRole.setRole("localuser");
 		}  else  {
