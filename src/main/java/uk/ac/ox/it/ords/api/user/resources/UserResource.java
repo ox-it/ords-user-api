@@ -103,6 +103,13 @@ public class UserResource {
 		}
 		
 		//
+		// Check there isn't another user with this email address.
+		//
+		if (UserService.Factory.getInstance().getUserByEmailAddress(user.getEmail()) != null){
+			return Response.status(409).build();
+		}
+		
+		//
 		// Override with new user defaults
 		//
 		user.setStatus(User.AccountStatus.PENDING_EMAIL_VERIFICATION.name());

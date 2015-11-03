@@ -106,6 +106,35 @@ public class UserResourceTest extends AbstractResourceTest {
 	}
 	
 	@Test
+	public void createUserDuplicateEmail(){
+		
+		loginUsingSSO("pingu", "pingu");
+		User user = new User();
+		user.setPrincipalName("pingu");
+		user.setName("Pingu");
+		user.setEmail("penguin@penguins.com");
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI user1Uri = response.getLocation();
+		logout();	
+		
+		loginUsingSSO("pingo", "pingo");
+		user = new User();
+		user.setPrincipalName("pingo");
+		user.setName("Pingo");
+		user.setEmail("penguin@penguins.com");
+		response = getClient().path("/").post(user);
+		assertEquals(409, response.getStatus());
+		logout();	
+		
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(user1Uri.getPath()).delete().getStatus());
+		logout();
+		
+	}
+	
+	@Test
 	public void createUserWithDefaults(){
 		loginUsingSSO("pingu", "pingu");
 
