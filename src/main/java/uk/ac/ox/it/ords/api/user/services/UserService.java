@@ -8,6 +8,11 @@ import uk.ac.ox.it.ords.api.user.services.impl.hibernate.UserServiceImpl;
 
 public interface UserService {
 	
+	/**
+	 * Initialise the service, setting up default roles and permissions
+	 */
+	public void init() throws Exception;
+	
 	public boolean validate(User user);
 	
 	public User getUserByPrincipalName(String principalname) throws Exception;
@@ -22,7 +27,7 @@ public interface UserService {
 	
 	public List<User> getUserList();
 	
-    public boolean updateUser(User user);
+    public void updateUser(User user) throws Exception;
     
     public void createUser(User user) throws Exception;
     

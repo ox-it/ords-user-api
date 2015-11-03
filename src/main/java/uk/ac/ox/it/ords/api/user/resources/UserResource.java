@@ -1,5 +1,6 @@
 package uk.ac.ox.it.ords.api.user.resources;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -23,6 +24,15 @@ import uk.ac.ox.it.ords.api.user.services.AuditService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 
 public class UserResource {
+	
+	/**
+	 * Before the resource can be used, carry out initialisation steps
+	 * @throws Exception 
+	 */
+	@PostConstruct
+	public void init() throws Exception{
+		UserService.Factory.getInstance().init();
+	}
 	
 	@Path("/{id}")
 	@DELETE

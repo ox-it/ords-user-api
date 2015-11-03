@@ -36,12 +36,11 @@ import org.junit.BeforeClass;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
-import uk.ac.ox.it.ords.api.user.permissions.UserPermissionSets;
 import uk.ac.ox.it.ords.api.user.resources.UserResource;
 import uk.ac.ox.it.ords.api.user.resources.UserRoleResource;
+import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.impl.hibernate.HibernateUtils;
 import uk.ac.ox.it.ords.security.AbstractShiroTest;
-import uk.ac.ox.it.ords.security.model.Permission;
 import uk.ac.ox.it.ords.security.model.UserRole;
 
 public class AbstractResourceTest extends AbstractShiroTest {
@@ -64,62 +63,20 @@ public class AbstractResourceTest extends AbstractShiroTest {
 		return client;
 	}
 	
-	public static void createTestUsersAndRoles(){
+	public static void createTestUsersAndRoles() throws Exception{
+		
+		UserService.Factory.getInstance().init();
+		
 		//
 		// Set up the database
 		//
+		
 		//
 		// Set up the test users and their permissions
 		//
 		Session session = HibernateUtils.getSessionFactory().getCurrentSession();
 		Transaction transaction = session.beginTransaction();
 		
-		//
-		// Add our test permissions
-		//
-		
-		//
-		// Anyone with the "User" role can contribute to existing projects
-		//
-		for (String permission : UserPermissionSets.getPermissionsForUser()){
-			Permission permissionObject = new Permission();
-			permissionObject.setRole("user");
-			permissionObject.setPermission(permission);
-			session.save(permissionObject);
-		}
-		
-		//
-		// Anyone with the "LocalUser" role can create new trial projects
-		//
-		for (String permission : UserPermissionSets.getPermissionsForLocalUser()){
-			Permission permissionObject = new Permission();
-			permissionObject.setRole("localuser");
-			permissionObject.setPermission(permission);
-			session.save(permissionObject);
-		}
-		
-		//
-		// Anyone with the "Administrator" role can create new full
-		// projects and upgrade projects to full, and update any
-		// user projects
-		//
-		for (String permission : UserPermissionSets.getPermissionsForSysadmin()){
-			Permission permissionObject = new Permission();
-			permissionObject.setRole("administrator");
-			permissionObject.setPermission(permission);
-			session.save(permissionObject);
-		}
-
-		//
-		// "Anonymous" can View public projects
-		//
-		for (String permission : UserPermissionSets.getPermissionsForAnonymous()){
-			Permission permissionObject = new Permission();
-			permissionObject.setRole("anonymous");
-			permissionObject.setPermission(permission);
-			session.save(permissionObject);
-		}
-	
 		//
 		// Add test users to roles
 		//
@@ -178,6 +135,7 @@ public class AbstractResourceTest extends AbstractShiroTest {
 		ArrayList<ResourceProvider> resources = new ArrayList<ResourceProvider>();
 		resources.add(new SingletonResourceProvider(new UserResource(), true));
 		resources.add(new SingletonResourceProvider(new UserRoleResource(), true));
+		resources.add(new SingletonResourceProvider(new Verification(), true));
 		sf.setResourceProviders(resources);
 		
 		//

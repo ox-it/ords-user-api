@@ -82,7 +82,7 @@ public class UserResourceTest extends AbstractResourceTest {
 		User user = new User();
 		user.setPrincipalName("pingu");
 		user.setName("Pingu");
-		user.setStatus(User.AccountStatus.AUTHORIZED.name());
+		user.setStatus(User.AccountStatus.VERIFIED.name());
 		
 		Response response = getClient().path("/").post(user);
 		assertEquals(201, response.getStatus());
@@ -100,7 +100,6 @@ public class UserResourceTest extends AbstractResourceTest {
 		
 		// Clean up
 		loginUsingSSO("admin", "admin");
-		System.out.println(userUri.getPath());
 		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
 		logout();
 		

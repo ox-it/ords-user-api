@@ -51,9 +51,23 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		
 	}
 
-	public User getUserByVerificationId(String verificationId) {
-		// TODO Auto-generated method stub
-		return null;
+	public User getUserByVerificationId(String verificationId) throws Exception {
+		Session session = this.sessionFactory.getCurrentSession();
+		try {
+			session.beginTransaction();
+			@SuppressWarnings("unchecked")
+			List<User> users = (List<User>) session.createCriteria(User.class).add(Restrictions.eq("verificationUuid", verificationId)).list();
+			session.getTransaction().commit();
+			if (users.size() == 1){
+				return users.get(0);
+			} 
+			return null;
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			throw e;
+		} finally {
+			  HibernateUtils.closeSession();
+		}
 	}
 
 	public User getUserByEmailAddress(String email) throws Exception {
@@ -100,9 +114,21 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		return null;
 	}
 
-	public boolean updateUser(User user) {
-		// TODO Auto-generated method stub
-		return false;
+	/* (non-Javadoc)
+	 * @see uk.ac.ox.it.ords.api.user.services.UserService#updateUser(uk.ac.ox.it.ords.api.user.model.User)
+	 */
+	public void updateUser(User user) throws Exception {
+		Session session = this.sessionFactory.getCurrentSession();
+		try {
+			session.beginTransaction();
+			session.update(user);
+			session.getTransaction().commit();
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			throw e;
+		} finally {
+			  HibernateUtils.closeSession();
+		}
 	}
 
 	public void createUser(User user) throws Exception {
@@ -133,18 +159,10 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		}
 		
 		//
-		// Every new user gets the "User" role unless they are a
-		// "local" user. We need to make this configurable, but 
-		// at the moment its based on matching the principal path
-		//
+		// Every new user gets the "UnverifiedUser" role.
 		UserRole userRole = new UserRole();
 		userRole.setPrincipalName(user.getPrincipalName());
-		
-		if (user.getPrincipalName().contains("ox.ac.uk")){
-			userRole.setRole("localuser");
-		} else {
-			userRole.setRole("user");
-		}
+		userRole.setRole("unverifieduser");
 		UserRoleService.Factory.getInstance().createUserRole(userRole);
 	}
 

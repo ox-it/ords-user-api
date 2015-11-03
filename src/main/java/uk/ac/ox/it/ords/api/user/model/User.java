@@ -27,7 +27,7 @@ public class User {
     @Size(min = 2, max = 200)
     private String name = "Unknown";
     
-    public enum AccountStatus {PENDING_ACK, PENDING_EMAIL_VERIFICATION, PENDING_AUTHORIZATION, AUTHORIZED };
+    public enum AccountStatus {PENDING_EMAIL_VERIFICATION, VERIFIED };
     private String status = AccountStatus.PENDING_EMAIL_VERIFICATION.toString();
     
     private String verificationUuid;

@@ -11,8 +11,15 @@ public interface UserRoleService {
 	
 	public List<UserRole> getUserRolesForUser(User user) throws Exception;
 	public void createUserRole(UserRole userRole) throws Exception;
-	public void updateUserRole(UserRole userRole) throws Exception;
 	public void deleteUserRole(UserRole userRole) throws Exception;
+	
+	/**
+	 * Set appropriate roles and permissions for users who have verified their email
+	 * Typically this deletes an "Unverified User" role and creates a new "User" role
+	 * for the principal.
+	 * @param user
+	 */
+	public void verifyUser(User user) throws Exception;
 	
 	/**
 	 * Factory for obtaining implementations

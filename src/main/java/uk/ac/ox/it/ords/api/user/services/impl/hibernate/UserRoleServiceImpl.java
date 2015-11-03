@@ -61,11 +61,6 @@ public class UserRoleServiceImpl implements UserRoleService {
 		}
 	}
 
-	public void updateUserRole(UserRole userRole) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void deleteUserRole(UserRole userRole) throws Exception {
 		Session session = this.sessionFactory.getCurrentSession();
 		try {
@@ -80,6 +75,33 @@ public class UserRoleServiceImpl implements UserRoleService {
 			  HibernateUtils.closeSession();
 		}
 
+	}
+
+	/* (non-Javadoc)
+	 * @see uk.ac.ox.it.ords.api.user.services.UserRoleService#verifyUser(uk.ac.ox.it.ords.api.user.model.User)
+	 */
+	public void verifyUser(User user) throws Exception {
+		// 
+		// Delete unverified user role
+		//
+		List<UserRole> roles = getUserRolesForUser(user);
+		for (UserRole role : roles){
+			if (role.getRole().equals("unverifieduser")){
+				deleteUserRole(role);
+			}
+		}
+		
+		//
+		// Create new role
+		//
+		UserRole newRole = new UserRole();
+		if (user.getPrincipalName().contains("ox.ac.uk")){
+			newRole.setRole("localuser");
+		}  else  {
+			newRole.setRole("user");
+		}
+		createUserRole(newRole);
+		
 	}
 
 }

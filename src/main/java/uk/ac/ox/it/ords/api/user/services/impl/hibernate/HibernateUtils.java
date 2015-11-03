@@ -20,9 +20,12 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
+import org.jboss.logging.Logger;
 
 public class HibernateUtils
 {
+	public static Logger log = Logger.getLogger(HibernateUtils.class);
+	
 	private static SessionFactory sessionFactory;
 	private static ServiceRegistry serviceRegistry;
 	
@@ -37,7 +40,7 @@ public class HibernateUtils
 		}
 		catch (HibernateException he)
 		{
-			System.err.println("Error creating Session: " + he);
+			log.error("Error creating Session: " + he);
 			throw new ExceptionInInitializerError(he);
 		}
 	}
