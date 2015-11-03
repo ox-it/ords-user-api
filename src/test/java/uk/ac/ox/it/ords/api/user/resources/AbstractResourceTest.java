@@ -79,11 +79,21 @@ public class AbstractResourceTest extends AbstractShiroTest {
 		//
 		
 		//
-		// Anyone with the "User" role can create new trial projects
+		// Anyone with the "User" role can contribute to existing projects
 		//
 		for (String permission : UserPermissionSets.getPermissionsForUser()){
 			Permission permissionObject = new Permission();
 			permissionObject.setRole("user");
+			permissionObject.setPermission(permission);
+			session.save(permissionObject);
+		}
+		
+		//
+		// Anyone with the "LocalUser" role can create new trial projects
+		//
+		for (String permission : UserPermissionSets.getPermissionsForLocalUser()){
+			Permission permissionObject = new Permission();
+			permissionObject.setRole("localuser");
 			permissionObject.setPermission(permission);
 			session.save(permissionObject);
 		}

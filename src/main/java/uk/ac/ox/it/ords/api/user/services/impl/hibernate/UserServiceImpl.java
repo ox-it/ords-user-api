@@ -133,11 +133,18 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		}
 		
 		//
-		// Every new user gets the "User" role
+		// Every new user gets the "User" role unless they are a
+		// "local" user. We need to make this configurable, but 
+		// at the moment its based on matching the principal path
 		//
 		UserRole userRole = new UserRole();
 		userRole.setPrincipalName(user.getPrincipalName());
-		userRole.setRole("user");
+		
+		if (user.getPrincipalName().contains("ox.ac.uk")){
+			userRole.setRole("localuser");
+		} else {
+			userRole.setRole("user");
+		}
 		UserRoleService.Factory.getInstance().createUserRole(userRole);
 	}
 
