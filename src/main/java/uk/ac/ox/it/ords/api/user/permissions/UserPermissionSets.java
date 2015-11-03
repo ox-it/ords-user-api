@@ -12,6 +12,13 @@ public class UserPermissionSets {
 		return permissions;
 	}
 
+	public static List<String> getPermissionsForUnverifiedUser(){
+		ArrayList<String> permissions = new ArrayList<String>();
+		permissions.add(UserPermissions.USER_VERIFY_SELF);
+		permissions.add(UserPermissions.PROJECT_VIEW_PUBLIC);
+		return permissions;
+	}
+	
 	
 	public static List<String> getPermissionsForUser(){
 		ArrayList<String> permissions = new ArrayList<String>();
