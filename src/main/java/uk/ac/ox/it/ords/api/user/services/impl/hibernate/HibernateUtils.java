@@ -15,25 +15,37 @@
  */
 package uk.ac.ox.it.ords.api.user.services.impl.hibernate;
 
+import java.io.File;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
-import org.jboss.logging.Logger;
 
 public class HibernateUtils
 {
-	public static Logger log = Logger.getLogger(HibernateUtils.class);
+	public static Logger log = LoggerFactory.getLogger(HibernateUtils.class);
 	
 	private static SessionFactory sessionFactory;
 	private static ServiceRegistry serviceRegistry;
+	
+	private static final String HIBERNATE_CONFIGURATION_LOCATION = "/etc/ordsConfig/ords-user-api.hibernate.cfg.xml";
 	
 	private static void init()
 	{
 		try
 		{
-			Configuration configuration = new Configuration().configure();
+			Configuration configuration;
+			
+			if (new File(HIBERNATE_CONFIGURATION_LOCATION).exists()){
+				configuration = new Configuration().configure(HIBERNATE_CONFIGURATION_LOCATION);	
+			} else {
+				configuration = new Configuration().configure();
+			}
 
 			serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
 			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
