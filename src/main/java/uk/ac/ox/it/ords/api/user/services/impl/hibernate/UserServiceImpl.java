@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.it.ords.api.user.model.User;
-import uk.ac.ox.it.ords.api.user.services.AuditService;
+import uk.ac.ox.it.ords.api.user.services.UserAuditService;
 import uk.ac.ox.it.ords.api.user.services.UserRoleService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.impl.AbstractUserService;
@@ -151,7 +151,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 			session.beginTransaction();
 			session.save(user);
 			session.getTransaction().commit();
-			AuditService.Factory.getInstance().createSignupRecord(user);
+			UserAuditService.Factory.getInstance().createSignupRecord(user);
 		} catch (Exception e) {
 			session.getTransaction().rollback();
 			throw e;

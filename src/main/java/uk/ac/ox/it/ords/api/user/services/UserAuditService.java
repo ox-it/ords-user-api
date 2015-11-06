@@ -20,7 +20,7 @@ import java.util.ServiceLoader;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.services.impl.ipc.AuditServiceImpl;
 
-public interface AuditService {
+public interface UserAuditService {
 	
     /**
      * Create audit message that the user is not authorised to perform a specific action
@@ -38,7 +38,7 @@ public interface AuditService {
      * If there is no record of the user, an audit record stating than the user could not be found.
      * @param userId the id of the user logging in to ORDS
      */
-	public void createLoginRecord(int userId);
+	public void createLoginRecord(String userId);
 	
     /**
      * Create an audit event when a user logs in to ORDS.
@@ -52,7 +52,7 @@ public interface AuditService {
      * @param message A message to be written with the audit record.
      * @param userId the id of the user.
      */
-	public void createLoginFailedRecord(String message, int userId);
+	public void createLoginFailedRecord(String message, String userId);
     
     /**
      * Record a message that the user login attempt was unsuccessful.
@@ -64,7 +64,7 @@ public interface AuditService {
      * Record a message that the user logged out of ORDS.
      * @param userId the id of the user.
      */
-	public void createLogoffRecord(int userId);
+	public void createLogoffRecord(String userId);
 
     /**
      * Create a signup audit record for an user. No record will be created for null input.
@@ -76,8 +76,8 @@ public interface AuditService {
 	 * Factory for obtaining implementations
 	 */
     public static class Factory {
-		private static AuditService provider;
-	    public static AuditService getInstance() {
+		private static UserAuditService provider;
+	    public static UserAuditService getInstance() {
 	    	//
 	    	// Use the service loader to load an implementation if one is available
 	    	// Place a file called uk.ac.ox.oucs.ords.utilities.csv in src/main/resources/META-INF/services
@@ -85,8 +85,8 @@ public interface AuditService {
 	    	// By default we load the Hibernate implementation.
 	    	//
 	    	if (provider == null){
-	    		ServiceLoader<AuditService> ldr = ServiceLoader.load(AuditService.class);
-	    		for (AuditService service : ldr) {
+	    		ServiceLoader<UserAuditService> ldr = ServiceLoader.load(UserAuditService.class);
+	    		for (UserAuditService service : ldr) {
 	    			// We are only expecting one
 	    			provider = service;
 	    		}

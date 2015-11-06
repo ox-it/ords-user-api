@@ -30,5 +30,6 @@
         <mapping class="uk.ac.ox.it.ords.api.user.model.User"/>
         <mapping class="uk.ac.ox.it.ords.security.model.UserRole"/>
         <mapping class="uk.ac.ox.it.ords.security.model.Permission"/>
+        <mapping class="uk.ac.ox.it.ords.security.model.Audit"/>
     </session-factory>
 </hibernate-configuration>

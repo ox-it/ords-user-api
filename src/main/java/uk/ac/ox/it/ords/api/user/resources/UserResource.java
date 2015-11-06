@@ -20,7 +20,7 @@ import org.apache.shiro.SecurityUtils;
 import uk.ac.ox.it.ords.api.user.model.OtherUser;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.permissions.UserPermissions;
-import uk.ac.ox.it.ords.api.user.services.AuditService;
+import uk.ac.ox.it.ords.api.user.services.UserAuditService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 
 public class UserResource {
@@ -44,7 +44,7 @@ public class UserResource {
 		// Check auth
 		//
 		if (!SecurityUtils.getSubject().isPermitted(UserPermissions.USER_DELETE_ALL)){
-			AuditService.Factory.getInstance().createNotAuthRecord(UserPermissions.USER_DELETE_ALL, String.valueOf(id));
+			UserAuditService.Factory.getInstance().createNotAuthRecord(UserPermissions.USER_DELETE_ALL, String.valueOf(id));
 			return Response.status(403).build();
 		}
 		
@@ -84,7 +84,7 @@ public class UserResource {
 		// if this is the principal, we treat them as unauthenticated
 		//
 		if (SecurityUtils.getSubject().getPrincipal().equals("anonymous")){
-			AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
+			UserAuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
 			return Response.status(401).build();
 		}
 		
@@ -182,7 +182,7 @@ public class UserResource {
 		// The user is logged in
 		// 
 		if (!SecurityUtils.getSubject().isAuthenticated()){
-			AuditService.Factory.getInstance().createNotAuthRecord("User:query", null);
+			UserAuditService.Factory.getInstance().createNotAuthRecord("User:query", null);
 			return Response.status(401).build();
 		}
 		
@@ -199,7 +199,7 @@ public class UserResource {
 			// if this is the principal, we treat them as unauthenticated
 			//
 			if (principalName.equals("anonymous")){
-				AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
+				UserAuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
 				return Response.status(401).build();
 			}
 			
@@ -230,7 +230,7 @@ public class UserResource {
 		// The user is logged in
 		// 
 		if (!SecurityUtils.getSubject().isAuthenticated()){
-			AuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
+			UserAuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
 			return Response.status(403).build();
 		}
 				
