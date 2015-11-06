@@ -19,12 +19,14 @@ import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
+
+import uk.ac.ox.it.ords.api.user.conf.MetaConfiguration;
+
 
 public class HibernateUtils
 {
@@ -32,19 +34,17 @@ public class HibernateUtils
 	
 	private static SessionFactory sessionFactory;
 	private static ServiceRegistry serviceRegistry;
-	
-	private static final String HIBERNATE_CONFIGURATION_LOCATION = "/etc/ordsConfig/ords-user-api.hibernate.cfg.xml";
-	
+		
 	private static void init()
 	{
 		try
 		{
 			Configuration configuration;
-			
-			if (new File(HIBERNATE_CONFIGURATION_LOCATION).exists()){
-				configuration = new Configuration().configure(HIBERNATE_CONFIGURATION_LOCATION);	
-			} else {
+			String hibernateConfigLocation = MetaConfiguration.getConfigurationLocation("hibernate");
+			if (hibernateConfigLocation == null){
 				configuration = new Configuration().configure();
+			} else {
+				configuration = new Configuration().configure(hibernateConfigLocation);
 			}
 
 			serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
