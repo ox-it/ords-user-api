@@ -1,10 +1,24 @@
+/*
+ * Copyright 2015 University of Oxford
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.ac.ox.it.ords.api.user.services.impl.hibernate;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,9 +26,10 @@ import org.hibernate.criterion.Restrictions;
 
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.services.UserRoleService;
+import uk.ac.ox.it.ords.api.user.services.impl.AbstractUserRoleService;
 import uk.ac.ox.it.ords.security.model.UserRole;
 
-public class UserRoleServiceImpl implements UserRoleService {
+public class UserRoleServiceImpl extends AbstractUserRoleService implements UserRoleService {
 	
 	
 	private static Logger log = LoggerFactory.getLogger(UserRoleServiceImpl.class);
@@ -76,34 +91,6 @@ public class UserRoleServiceImpl implements UserRoleService {
 			  HibernateUtils.closeSession();
 		}
 
-	}
-
-	/* (non-Javadoc)
-	 * @see uk.ac.ox.it.ords.api.user.services.UserRoleService#verifyUser(uk.ac.ox.it.ords.api.user.model.User)
-	 */
-	public void verifyUser(User user) throws Exception {
-		// 
-		// Delete unverified user role
-		//
-		List<UserRole> roles = getUserRolesForUser(user);
-		for (UserRole role : roles){
-			if (role.getRole().equals("unverifieduser")){
-				deleteUserRole(role);
-			}
-		}
-		
-		//
-		// Create new role
-		//
-		UserRole newRole = new UserRole();
-		newRole.setPrincipalName(user.getPrincipalName());
-		if (user.getPrincipalName().contains("ox.ac.uk")){
-			newRole.setRole("localuser");
-		}  else  {
-			newRole.setRole("user");
-		}
-		createUserRole(newRole);
-		
 	}
 
 }
