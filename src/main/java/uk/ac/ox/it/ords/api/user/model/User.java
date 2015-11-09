@@ -82,11 +82,6 @@ public class User {
         this.principalType = principalType;
     }
     
-    public boolean equals(User user) {
-        return ( (this.getEmail().equals(user.getEmail())) &&
-                (this.getName().equals(user.getName())) );
-    }
-    
     public String getStatus() {
         return status;
     }
