@@ -10,6 +10,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "ordsuser")
 public class User {
@@ -30,6 +32,7 @@ public class User {
     public enum AccountStatus {PENDING_EMAIL_VERIFICATION, VERIFIED };
     private String status = AccountStatus.PENDING_EMAIL_VERIFICATION.toString();
     
+    @JsonIgnore 
     private String verificationUuid;
     
     public User() {
@@ -92,10 +95,12 @@ public class User {
         this.status = status;
     }
 
+    @JsonIgnore 
     public String getVerificationUuid() {
         return verificationUuid;
     }
 
+    @JsonIgnore 
     public void setVerificationUuid(String verificationUuid) {
         this.verificationUuid = verificationUuid;
     }

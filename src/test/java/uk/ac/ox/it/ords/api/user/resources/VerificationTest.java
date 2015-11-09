@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 import uk.ac.ox.it.ords.api.user.model.User;
+import uk.ac.ox.it.ords.api.user.services.UserService;
 
 public class VerificationTest extends AbstractResourceTest {
 
@@ -18,7 +19,7 @@ public class VerificationTest extends AbstractResourceTest {
 	}
 	
 	@Test
-	public void createAndVerifyUser(){
+	public void createAndVerifyUser() throws Exception{
 		loginUsingSSO("pingu", "pingu");
 		User user = new User();
 		user.setPrincipalName("pingu");
@@ -33,11 +34,16 @@ public class VerificationTest extends AbstractResourceTest {
 		user = response.readEntity(User.class);
 		assertEquals("pingu", user.getPrincipalName());
 		assertEquals("PENDING_EMAIL_VERIFICATION", user.getStatus());
-		String code = user.getVerificationUuid();
+
 		
 		assertEquals(200, getClient().path("/"+user.getUserId()).get().getStatus());
 		assertEquals(200, getClient().path(userUri.getPath()).get().getStatus());
 		logout();	
+		
+		//
+		// Read the code from the DB
+		//
+		String code = UserService.Factory.getInstance().getUser(user.getUserId()).getVerificationUuid();
 		
 		//
 		// Now verify
