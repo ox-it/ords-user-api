@@ -115,6 +115,10 @@ public class UserResource {
 		user.setStatus(User.AccountStatus.PENDING_EMAIL_VERIFICATION.name());
 		user.setPrincipalType("");
 		
+		// Generate the OdbcUser name from the principal
+		String odbcUser = user.getPrincipalName().replace("@", "").replace(".", "");
+		user.setOdbcUser(odbcUser);
+		
 		//
 		// Create the user
 		//

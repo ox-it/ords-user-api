@@ -18,6 +18,7 @@ public class User {
 	
     private String principalName;
     private String principalType;
+    private String odbcUser;
     
     @Id
     @GeneratedValue
@@ -34,6 +35,10 @@ public class User {
     
     @JsonIgnore 
     private String verificationUuid;
+    
+    
+    public static String ODBC_CALCULATED_NAME_SUFFIX = "_ords";
+
     
     public User() {
     	
@@ -99,4 +104,29 @@ public class User {
     public void setVerificationUuid(String verificationUuid) {
         this.verificationUuid = verificationUuid;
     }
+    
+    
+    public String getOdbcUser() {
+		return odbcUser;
+	}
+    
+    public String calculateOdbcUserForOrds() {
+    	return getOdbcUser() + ODBC_CALCULATED_NAME_SUFFIX;
+    }
+    
+    public static String getOdbcNameFromCalculatedName(String calculatedName) {
+        if (calculatedName == null) {
+            return null;
+        }
+        if (calculatedName.endsWith(ODBC_CALCULATED_NAME_SUFFIX)) {
+            return calculatedName.substring(0, ODBC_CALCULATED_NAME_SUFFIX.length()-1);
+        }
+        return calculatedName;
+    }
+
+
+	public void setOdbcUser(String odbcUser) {
+		this.odbcUser = odbcUser;
+	}
+
 }
