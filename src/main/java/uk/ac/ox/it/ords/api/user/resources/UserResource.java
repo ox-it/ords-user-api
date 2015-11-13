@@ -22,6 +22,7 @@ import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.permissions.UserPermissions;
 import uk.ac.ox.it.ords.api.user.services.UserAuditService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
+import uk.ac.ox.it.ords.api.user.services.VerificationEmailService;
 
 public class UserResource {
 	
@@ -119,11 +120,24 @@ public class UserResource {
 		String odbcUser = user.getPrincipalName().replace("@", "").replace(".", "");
 		user.setOdbcUser(odbcUser);
 		
+		
+		if (!UserService.Factory.getInstance().validate(user)){
+			return Response.status(400).build();
+		}
+		
 		//
 		// Create the user
 		//
 		UserService.Factory.getInstance().createUser(user);
 		
+		//
+		// Send verification email
+		//
+		VerificationEmailService.Factory.getInstance().sendVerificationMessage(user);
+		
+		//
+		// Return 201 with location of User object
+		//
 	    UriBuilder builder = uriInfo.getAbsolutePathBuilder();
 	    builder.path(Integer.toString(user.getUserId()));
 	    return Response.created(builder.build()).build();
