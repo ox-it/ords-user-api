@@ -118,9 +118,6 @@ public class SendMailTLS implements VerificationEmailService {
 			log.error("Unable to send emails due to null user");
 			return;
 		}
-
-		System.out.println(props.get("mail.smtp.username") );
-		System.out.println(props.get("mail.smtp.password") );
 		
 		Session session = Session.getInstance(props,
 				new javax.mail.Authenticator() {
