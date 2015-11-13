@@ -82,6 +82,7 @@ public class UserResourceTest extends AbstractResourceTest {
 		User user = new User();
 		user.setPrincipalName("pingu");
 		user.setName("Pingu");
+		user.setEmail("penguin@mailinator.com");
 		user.setStatus(User.AccountStatus.VERIFIED.name());
 		
 		Response response = getClient().path("/").post(user);
@@ -112,7 +113,7 @@ public class UserResourceTest extends AbstractResourceTest {
 		User user = new User();
 		user.setPrincipalName("pingu");
 		user.setName("Pingu");
-		user.setEmail("penguin@penguins.com");
+		user.setEmail("penguin@mailinator.com");
 		Response response = getClient().path("/").post(user);
 		assertEquals(201, response.getStatus());
 		URI user1Uri = response.getLocation();
@@ -122,7 +123,7 @@ public class UserResourceTest extends AbstractResourceTest {
 		user = new User();
 		user.setPrincipalName("pingo");
 		user.setName("Pingo");
-		user.setEmail("penguin@penguins.com");
+		user.setEmail("penguin@mailinator.com");
 		response = getClient().path("/").post(user);
 		assertEquals(409, response.getStatus());
 		logout();	
@@ -140,6 +141,7 @@ public class UserResourceTest extends AbstractResourceTest {
 
 		User user = new User();
 		user.setName("Pingu");
+		user.setEmail("penguin@mailinator.com");
 		
 		Response response = getClient().path("/").post(user);
 		assertEquals(201, response.getStatus());
@@ -163,6 +165,7 @@ public class UserResourceTest extends AbstractResourceTest {
 		user = new User();
 		user.setName("Pingu");
 		user.setPrincipalName("");
+		user.setEmail("penguin@mailinator.com");
 		
 		response = getClient().path("/").post(user);
 		assertEquals(201, response.getStatus());
@@ -190,13 +193,13 @@ public class UserResourceTest extends AbstractResourceTest {
 		User user = new User();
 		user.setPrincipalName("pinga");
 		user.setName("Pinga");
-		user.setEmail("pinga@penguins.com");
+		user.setEmail("pinga@mailinator.com");
 		
 		Response response = getClient().path("/").post(user);
 		assertEquals(201, response.getStatus());
 		URI userUri = response.getLocation();
 		
-		response =  getClient().path("/").query("email", "pinga@penguins.com").get();
+		response =  getClient().path("/").query("email", "pinga@mailinator.com").get();
 		assertEquals(200, response.getStatus());
 		user = response.readEntity(User.class);
 		assertEquals("Pinga", user.getName());
