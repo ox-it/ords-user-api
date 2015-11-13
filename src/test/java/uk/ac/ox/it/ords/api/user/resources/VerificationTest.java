@@ -18,12 +18,24 @@ public class VerificationTest extends AbstractResourceTest {
 		assertEquals(400, getClient().path("verifyemail/9999").get().getStatus());
 	}
 	
+	
+	@Test
+	public void createUserWithoutEmailAddress(){
+		loginUsingSSO("pingu", "pingu");
+		User user = new User();
+		user.setPrincipalName("pingu");
+		user.setName("Pingu");
+		Response response = getClient().path("/").post(user);
+		assertEquals(400, response.getStatus());
+	}
+	
 	@Test
 	public void createAndVerifyUser() throws Exception{
 		loginUsingSSO("pingu", "pingu");
 		User user = new User();
 		user.setPrincipalName("pingu");
 		user.setName("Pingu");
+		user.setEmail("penguin@mailinator.com");
 		
 		Response response = getClient().path("/").post(user);
 		assertEquals(201, response.getStatus());
