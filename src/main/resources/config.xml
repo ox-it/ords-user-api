@@ -8,4 +8,5 @@
 	 -->
 	<hibernate>hibernate.cfg.xml</hibernate>
 	<user>user.properties</user>
+	<emailConfiguration>mail.properties</emailConfiguration>
 </configuration>
