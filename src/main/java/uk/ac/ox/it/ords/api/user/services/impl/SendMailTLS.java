@@ -43,6 +43,7 @@ public class SendMailTLS implements VerificationEmailService {
 	private Logger log = LoggerFactory.getLogger(SendMailTLS.class);
 	private Properties props;
 	private String email;
+	private boolean sendEmail = true;
 
 	public SendMailTLS() {
 
@@ -61,6 +62,7 @@ public class SendMailTLS implements VerificationEmailService {
 			props.put("mail.smtp.password", properties.getString("mail.smtp.password"));
 			props.put("mail.verification.address", properties.getString("mail.verification.address"));
 			props.put("mail.verification.message", properties.getString("mail.verification.message"));
+			sendEmail = properties.getBoolean("mail.send");
 
 		} catch (ConfigurationException e) {
 			log.error("Error reading Mail properties file; using hard-coded defaults instead");
@@ -76,7 +78,7 @@ public class SendMailTLS implements VerificationEmailService {
 			props.put("mail.smtp.password", "ords");
 			props.put("mail.verification.address","https://app.ords.ox.ac.uk/app/verify/%s");
 			props.put("mail.verification.message", "Hi %s\n\nIn order to ensure you are able to receive emails from us, please click the following link (if the link below is not clickable, then please copy and paste the URL into a web browser). This will complete the registration process.\n\n%s\n\nThe ORDS Team");
-
+			sendEmail = false;
 		}
 
 		//setupCredentials();
@@ -91,7 +93,7 @@ public class SendMailTLS implements VerificationEmailService {
 			return;
 		}
 		String messageText = createVerificationMessage(user);
-		sendMail(messageText);
+		if (sendEmail) sendMail(messageText);
 	}
 	
 	/**
