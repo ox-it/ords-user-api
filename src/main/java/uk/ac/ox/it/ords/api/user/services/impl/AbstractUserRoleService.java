@@ -17,8 +17,6 @@ package uk.ac.ox.it.ords.api.user.services.impl;
 
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,16 +37,7 @@ public abstract class AbstractUserRoleService implements UserRoleService{
 	 * @return true if the principal belongs to the host domain.
 	 */
 	protected boolean isLocalUser(String principalName){
-		String localSuffix = "";
-		String userPropertiesLocation = MetaConfiguration.getConfigurationLocation("user");
-		if (userPropertiesLocation == null) userPropertiesLocation = "user.properties";
-		try {
-			PropertiesConfiguration userProperties = new PropertiesConfiguration(userPropertiesLocation);
-			localSuffix = userProperties.getString("localsuffix");
-		} catch (ConfigurationException e) {
-			log.error("Cannot load user.properties from configuration file; using defaults");
-			localSuffix = "ox.ac.uk";
-		}
+		String localSuffix = MetaConfiguration.getConfiguration().getString("localsuffix");
 		
 		//
 		// We have two possible scenarios:

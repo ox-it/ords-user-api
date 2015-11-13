@@ -15,8 +15,6 @@
  */
 package uk.ac.ox.it.ords.api.user.services.impl.hibernate;
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
@@ -25,7 +23,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
-import uk.ac.ox.it.ords.api.user.conf.MetaConfiguration;
+import uk.ac.ox.it.ords.security.configuration.MetaConfiguration;
 
 
 public class HibernateUtils
@@ -40,7 +38,7 @@ public class HibernateUtils
 		try
 		{
 			Configuration configuration;
-			String hibernateConfigLocation = MetaConfiguration.getConfigurationLocation("hibernate");
+			String hibernateConfigLocation = MetaConfiguration.getConfiguration().getString("hibernate.configuration");
 			if (hibernateConfigLocation == null){
 				configuration = new Configuration().configure();
 			} else {

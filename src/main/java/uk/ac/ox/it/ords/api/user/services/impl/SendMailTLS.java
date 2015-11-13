@@ -17,8 +17,7 @@ package uk.ac.ox.it.ords.api.user.services.impl;
 
 import java.util.Properties;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.ConfigurationConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +29,9 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import uk.ac.ox.it.ords.api.user.conf.MetaConfiguration;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.services.VerificationEmailService;
+import uk.ac.ox.it.ords.security.configuration.MetaConfiguration;
 
 /**
  *
@@ -43,45 +42,9 @@ public class SendMailTLS implements VerificationEmailService {
 	private Logger log = LoggerFactory.getLogger(SendMailTLS.class);
 	private Properties props;
 	private String email;
-	private boolean sendEmail = true;
 
 	public SendMailTLS() {
-
-		props = new Properties();
-
-		try {
-			PropertiesConfiguration properties = new PropertiesConfiguration(MetaConfiguration.getConfigurationLocation("emailConfiguration"));
-			props.put("mail.smtp.auth", properties.getString("mail.smtp.auth"));
-			props.put("mail.smtp.starttls.enable", properties.getString("mail.smtp.starttls.enable"));
-			props.put("mail.smtp.host", properties.getString("mail.smtp.host"));
-			props.put("mail.smtp.port", properties.getString("mail.smtp.port"));
-			props.put("mail.smtp.from", properties.getString("mail.smtp.from"));
-			props.put("mail.smtp.to", properties.getString("mail.smtp.to"));
-			props.put("mail.smtp.subject", properties.getString("mail.smtp.subject"));
-			props.put("mail.smtp.username", properties.getString("mail.smtp.username"));
-			props.put("mail.smtp.password", properties.getString("mail.smtp.password"));
-			props.put("mail.verification.address", properties.getString("mail.verification.address"));
-			props.put("mail.verification.message", properties.getString("mail.verification.message"));
-			sendEmail = properties.getBoolean("mail.send");
-
-		} catch (ConfigurationException e) {
-			log.error("Error reading Mail properties file; using hard-coded defaults instead");
-
-			props.put("mail.smtp.auth", "false");//true");
-			props.put("mail.smtp.starttls.enable", "false");//true");
-			props.put("mail.smtp.host", "localhost");//smtp.gmail.com");
-			props.put("mail.smtp.port", "25");//587");
-			props.put("mail.smtp.from", "daemons@sysdev.oucs.ox.ac.uk");
-			props.put("mail.smtp.to", "ords@it.ox.ac.uk");
-			props.put("mail.smtp.subject", "Message from ORDS");
-			props.put("mail.smtp.username", "ords");
-			props.put("mail.smtp.password", "ords");
-			props.put("mail.verification.address","https://app.ords.ox.ac.uk/app/verify/%s");
-			props.put("mail.verification.message", "Hi %s\n\nIn order to ensure you are able to receive emails from us, please click the following link (if the link below is not clickable, then please copy and paste the URL into a web browser). This will complete the registration process.\n\n%s\n\nThe ORDS Team");
-			sendEmail = false;
-		}
-
-		//setupCredentials();
+		props = ConfigurationConverter.getProperties(MetaConfiguration.getConfiguration());
 	}
 
 	/* (non-Javadoc)
@@ -93,7 +56,7 @@ public class SendMailTLS implements VerificationEmailService {
 			return;
 		}
 		String messageText = createVerificationMessage(user);
-		if (sendEmail) sendMail(messageText);
+		if ( MetaConfiguration.getConfiguration().getBoolean("mail.send")) sendMail(messageText);
 	}
 	
 	/**

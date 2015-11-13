@@ -1,12 +1,13 @@
-<!-- This is the meta-configuration file - its used to lookup the location of configuration files in deployment -->
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
 <configuration>
-	<!-- ServerConfig.xml -->
-	<serverConfigurationLocation>serverConfig.xml</serverConfigurationLocation>
-	<!-- 
-		Hibernate. Note when using shared location, each hibernate file must have a different name
-		as they contain different persistent class mappings for each API provider.
-	 -->
-	<hibernate>hibernate.cfg.xml</hibernate>
-	<user>user.properties</user>
-	<emailConfiguration>mail.properties</emailConfiguration>
+
+	<!-- Allow environment variables to override file-based defaults -->
+   <system/>
+  
+  	<!--
+		This is the properties file used for the User API
+	-->
+   <properties fileName="user.properties"/>
+
 </configuration>
