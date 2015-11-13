@@ -98,6 +98,11 @@ public abstract class AbstractUserService implements UserService {
 	 * @see uk.ac.ox.it.ords.api.user.services.UserService#validate(uk.ac.ox.it.ords.api.user.model.User)
 	 */
 	public boolean validate(User user) {
+		
+		if (user.getEmail() == null || user.getEmail().trim().length() == 0){
+			return false;
+		}
+		
 		return true;
 	}	
 
