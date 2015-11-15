@@ -32,6 +32,7 @@
 	</reporting>
 	
 	<build>
+		<finalName>api#1.0#user</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
