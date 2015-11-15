@@ -37,7 +37,7 @@ public abstract class AbstractUserRoleService implements UserRoleService{
 	 * @return true if the principal belongs to the host domain.
 	 */
 	protected boolean isLocalUser(String principalName){
-		String localSuffix = MetaConfiguration.getConfiguration().getString("localsuffix");
+		String localSuffix = MetaConfiguration.getConfiguration().getString("ords.localsuffix");
 		
 		//
 		// We have two possible scenarios:

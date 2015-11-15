@@ -16,7 +16,7 @@ public class SendMailTLSTest {
 		user.setEmail("scott.bradley.wilson@gmail.com");
 		user.setName("Scott");
 		user.setVerificationUuid("9999");
-		assertEquals("http://localhost/app/verify/9999", sendMail.getVerificationUrl(user));
+		assertEquals("http://localhost/app/#/verify/9999", sendMail.getVerificationUrl(user));
 	}
 	
 	@Test
@@ -26,7 +26,7 @@ public class SendMailTLSTest {
 		user.setEmail("scott.bradley.wilson@gmail.com");
 		user.setName("Scott");
 		user.setVerificationUuid("9999");
-		assertEquals("Hi Scott\n\nIn order to ensure you are able to receive emails from us, please click the following link (if the link below is not clickable, then please copy and paste the URL into a web browser). This will complete the registration process.\n\nhttp://localhost/app/verify/9999\n\nThe ORDS Team", sendMail.createVerificationMessage(user));
+		assertEquals("Hi Scott\n\nIn order to ensure you are able to receive emails from us, please click the following link (if the link below is not clickable, then please copy and paste the URL into a web browser). This will complete the registration process.\n\nhttp://localhost/app/#/verify/9999\n\nThe ORDS Team", sendMail.createVerificationMessage(user));
 	}
 	
 	@Test

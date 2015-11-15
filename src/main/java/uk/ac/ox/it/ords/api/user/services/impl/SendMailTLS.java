@@ -56,7 +56,7 @@ public class SendMailTLS implements VerificationEmailService {
 			return;
 		}
 		String messageText = createVerificationMessage(user);
-		if ( MetaConfiguration.getConfiguration().getBoolean("mail.send")) sendMail(messageText);
+		if ( MetaConfiguration.getConfiguration().getBoolean("ords.mail.send")) sendMail(messageText);
 	}
 	
 	/**
@@ -65,12 +65,12 @@ public class SendMailTLS implements VerificationEmailService {
 	 * @return
 	 */
 	protected String getVerificationUrl(User user){
-		String link = String.format(props.getProperty("mail.verification.address"), user.getVerificationUuid());
+		String link = String.format(props.getProperty("ords.mail.verification.address"), user.getVerificationUuid());
 		return link;
 	}
 	
 	protected String createVerificationMessage(User user){
-		String messageText = String.format(props.getProperty("mail.verification.message"), user.getName(), getVerificationUrl(user));
+		String messageText = String.format(props.getProperty("ords.mail.verification.message"), user.getName(), getVerificationUrl(user));
 		email = user.getEmail();
 		if (log.isDebugEnabled()) {
 			log.debug("The email I want to send is:" + messageText);
