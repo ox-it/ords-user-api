@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.model.User.AccountStatus;
+import uk.ac.ox.it.ords.api.user.services.UserRoleService;
+import uk.ac.ox.it.ords.api.user.services.UserService;
 
 public class UserResourceTest extends AbstractResourceTest {
 
@@ -233,4 +235,249 @@ public class UserResourceTest extends AbstractResourceTest {
 		loginUsingSSO("admin", "admin");
 		assertEquals(404, getClient().path("/999").delete().getStatus());
 	}
+	
+	@Test
+	public void updateUserUnauth(){
+		User user = new User();
+		assertEquals(403, getClient().path("/999").put(user).getStatus());
+	}
+	
+	@Test
+	public void updateUserNonexisting(){
+		User user = new User();
+		loginUsingSSO("admin", "admin");
+		assertEquals(404, getClient().path("/999").put(user).getStatus());
+	}
+	
+	@Test
+	public void updateSelf() throws Exception{
+		
+		//
+		// Register
+		//
+		loginUsingSSO("pinga", "pinga");
+
+		User user = new User();
+		user.setPrincipalName("pinga");
+		user.setName("Pinga");
+		user.setEmail("pinga@mailinator.com");
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI userUri = response.getLocation();
+		// Read back so we have the correct ID
+		user = getClient().path("/").get().readEntity(User.class);
+		
+		//
+		// Verify the user so that they are allowed to update
+		//
+		user.setStatus(User.AccountStatus.VERIFIED.name());
+		UserService.Factory.getInstance().updateUser(user);
+		UserRoleService.Factory.getInstance().verifyUser(user);
+		
+		//
+		// Update
+		//
+		user.setName("Ms P. Penguin");
+		assertEquals(200, getClient().path(userUri.getPath()).put(user).getStatus());
+		User updatedUser = getClient().path(userUri.getPath()).get().readEntity(User.class);
+		assertEquals("Ms P. Penguin", updatedUser.getName());
+		
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
+		logout();
+		
+	}
+	
+	@Test
+	public void updateInvalid() throws Exception{
+		
+		//
+		// Register
+		//
+		loginUsingSSO("pinga", "pinga");
+
+		User user = new User();
+		user.setPrincipalName("pinga");
+		user.setName("Pinga");
+		user.setEmail("pinga@mailinator.com");
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI userUri = response.getLocation();
+		// Read back so we have the correct ID
+		user = getClient().path("/").get().readEntity(User.class);
+		
+		//
+		// Verify the user so that they are allowed to update
+		//
+		user.setStatus(User.AccountStatus.VERIFIED.name());
+		UserService.Factory.getInstance().updateUser(user);
+		UserRoleService.Factory.getInstance().verifyUser(user);
+		
+		//
+		// Update
+		//
+		user.setEmail(null);
+		assertEquals(400, getClient().path(userUri.getPath()).put(user).getStatus());
+		
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
+		logout();
+		
+	}
+	
+	@Test
+	public void updateOther() throws Exception{
+		
+		//
+		// Register
+		//
+		loginUsingSSO("pinga", "pinga");
+
+		User user = new User();
+		user.setPrincipalName("pinga");
+		user.setName("Pinga");
+		user.setEmail("pinga@mailinator.com");
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI userUri = response.getLocation();
+		// Read back so we have the correct ID
+		user = getClient().path("/").get().readEntity(User.class);
+		
+		//
+		// Verify the user so that they are allowed to update
+		//
+		user.setStatus(User.AccountStatus.VERIFIED.name());
+		UserService.Factory.getInstance().updateUser(user);
+		UserRoleService.Factory.getInstance().verifyUser(user);
+		
+		//
+		// Update
+		//
+		logout();
+		loginUsingSSO("pingu", "pingu");
+		user.setName("Ms P. Penguin");
+		assertEquals(403, getClient().path(userUri.getPath()).put(user).getStatus());
+		logout();
+		
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
+		logout();
+		
+	}
+	
+	@Test
+	public void updateSelfUnverified() throws Exception{
+		
+		//
+		// Register
+		//
+		loginUsingSSO("pinga", "pinga");
+
+		User user = new User();
+		user.setPrincipalName("pinga");
+		user.setName("Pinga");
+		user.setEmail("pinga@mailinator.com");
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI userUri = response.getLocation();
+		// Read back so we have the correct ID
+		user = getClient().path("/").get().readEntity(User.class);
+		
+		//
+		// Update
+		//
+		user.setName("Ms P. Penguin");
+		assertEquals(403, getClient().path(userUri.getPath()).put(user).getStatus());
+
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
+		logout();
+		
+	}
+	
+	@Test
+	public void updateSideAttack() throws Exception{
+		
+		//
+		// Register
+		//
+		loginUsingSSO("pinga", "pinga");
+
+		User user = new User();
+		user.setPrincipalName("pinga");
+		user.setName("Pinga");
+		user.setEmail("pinga@mailinator.com");
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI userUri = response.getLocation();
+		// Read back so we have the correct ID
+		user = getClient().path("/").get().readEntity(User.class);
+		
+		//
+		// Verify the user so that they are allowed to update
+		//
+		user.setStatus(User.AccountStatus.VERIFIED.name());
+		UserService.Factory.getInstance().updateUser(user);
+		UserRoleService.Factory.getInstance().verifyUser(user);
+		
+		//
+		// Register User 2
+		//
+		loginUsingSSO("pingu", "pingu");
+
+		User user2 = new User();
+		user2.setPrincipalName("pingu");
+		user2.setName("Pingu");
+		user2.setEmail("pingu@mailinator.com");
+		
+		response = getClient().path("/").post(user2);
+		assertEquals(201, response.getStatus());
+		URI userUri2 = response.getLocation();
+		// Read back so we have the correct ID
+		user2 = getClient().path("/").get().readEntity(User.class);
+		
+		//
+		// Verify the user so that they are allowed to update
+		//
+		user2.setStatus(User.AccountStatus.VERIFIED.name());
+		UserService.Factory.getInstance().updateUser(user2);
+		UserRoleService.Factory.getInstance().verifyUser(user2);
+		
+		//
+		// Update
+		//
+		user.setName("Ms P. Penguin");
+		
+		//
+		// As Pinga, try to update Pingu's details
+		//
+		logout();
+		loginUsingSSO("pinga", "pinga");
+		assertEquals(403, getClient().path(userUri.getPath()).put(user2).getStatus());	
+		
+		//
+		// As Admin, try to update Pingu's details
+		//
+		logout();
+		loginUsingSSO("admin", "admin");
+		assertEquals(400, getClient().path(userUri.getPath()).put(user2).getStatus());	
+		
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
+		assertEquals(200, getClient().path(userUri2.getPath()).delete().getStatus());
+		logout();
+		
+	}
+	
+	
 }

@@ -5,6 +5,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,6 +34,64 @@ public class UserResource {
 	@PostConstruct
 	public void init() throws Exception{
 		UserService.Factory.getInstance().init();
+	}
+	
+	@Path("/{id}")
+	@PUT
+	public Response updateUser(
+			@PathParam("id") final int id,
+			User user
+			) throws Exception {
+		
+		//
+		// Check auth
+		//
+		
+		// No user
+		if (SecurityUtils.getSubject().getPrincipal() == null){
+			return Response.status(403).build();	
+		}
+		
+		// Modify-self
+		if (SecurityUtils.getSubject().getPrincipal().equals(user.getPrincipalName())){
+			if (!SecurityUtils.getSubject().isPermitted(UserPermissions.USER_MODIFY_SELF)){
+				return Response.status(403).build();
+			}
+		} else {
+			// Modify-other
+			if (!SecurityUtils.getSubject().isPermitted(UserPermissions.USER_MODIFY_ALL)){
+				return Response.status(403).build();
+			}
+		}
+
+		
+		//
+		// Does the original User object exist?
+		//
+		User originalUser = UserService.Factory.getInstance().getUser(id);
+		if (originalUser == null){
+			return Response.status(404).build();
+		}
+		
+		//
+		// Check for side-attack
+		//
+		if (user.getUserId() != id){
+			return Response.status(400).build();
+		}
+		
+		//
+		// Validate
+		//
+		if (!UserService.Factory.getInstance().validate(user)){
+			return Response.status(400).build();			
+		}
+		
+		//
+		// Update the User
+		//
+		UserService.Factory.getInstance().updateUser(user);
+		return Response.ok().build();		
 	}
 	
 	@Path("/{id}")
