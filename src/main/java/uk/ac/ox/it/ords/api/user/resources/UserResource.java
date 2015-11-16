@@ -21,7 +21,9 @@ import org.apache.shiro.SecurityUtils;
 import uk.ac.ox.it.ords.api.user.model.OtherUser;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.permissions.UserPermissions;
+import uk.ac.ox.it.ords.api.user.services.InvitationCodeService;
 import uk.ac.ox.it.ords.api.user.services.UserAuditService;
+import uk.ac.ox.it.ords.api.user.services.UserRoleService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.VerificationEmailService;
 
@@ -129,7 +131,8 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createUser(
 			User user,
-			@Context UriInfo uriInfo
+			@Context UriInfo uriInfo,
+			@QueryParam("i") final String invitationCode
 			) throws Exception{
 		
 		//
@@ -178,22 +181,59 @@ public class UserResource {
 		// Generate the OdbcUser name from the principal
 		String odbcUser = user.getPrincipalName().replace("@", "").replace(".", "");
 		user.setOdbcUser(odbcUser);
+
 		
-		
-		if (!UserService.Factory.getInstance().validate(user)){
-			return Response.status(400).build();
+		//
+		// If we have an invitation code, look it up
+		//
+		if (invitationCode != null){
+			
+			//
+			// Get the code
+			//
+			String principalName = InvitationCodeService.Factory.getInstance().getUserByInvitationCode(invitationCode);
+			
+			//
+			// No match
+			//
+			if (principalName == null){
+				return Response.status(400).build();
+			}
+			
+			//
+			// Does the principal name matching the code also match the principal name of the user we're creating?
+			//
+			if (!principalName.equals(user.getPrincipalName())){				
+				return Response.status(400).build();
+			}
+			
+			//
+			// Create the user, and verify their role at the same time
+			//
+			user.setStatus(User.AccountStatus.VERIFIED.name());
+			UserService.Factory.getInstance().createUser(user);
+			UserRoleService.Factory.getInstance().verifyUser(user);
+			
+		} else {
+			
+			//
+			// Validate the request
+			//
+			if (!UserService.Factory.getInstance().validate(user)){
+				return Response.status(400).build();
+			}
+			
+			//
+			// Create the user
+			//
+			UserService.Factory.getInstance().createUser(user);
+			
+			//
+			// Send verification email
+			//
+			VerificationEmailService.Factory.getInstance().sendVerificationMessage(user);
 		}
-		
-		//
-		// Create the user
-		//
-		UserService.Factory.getInstance().createUser(user);
-		
-		//
-		// Send verification email
-		//
-		VerificationEmailService.Factory.getInstance().sendVerificationMessage(user);
-		
+
 		//
 		// Return 201 with location of User object
 		//

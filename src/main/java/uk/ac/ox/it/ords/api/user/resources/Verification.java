@@ -23,6 +23,9 @@ public class Verification {
 		
 		User user = null;
 		
+		//
+		// If there was a code supplied, use this to verify the user
+		//
 		if (code != null){
 			user = UserService.Factory.getInstance().getUserByVerificationId(code);
 		}
