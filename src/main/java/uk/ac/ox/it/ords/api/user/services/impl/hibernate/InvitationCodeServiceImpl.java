@@ -41,7 +41,7 @@ public class InvitationCodeServiceImpl implements InvitationCodeService {
 		String principalName = null;
 		try {
 			session.beginTransaction();
-			principalName = (String) session.createSQLQuery("SELECT principalname FROM ordsinvitationtable WHERE uuid = :uuid")
+			principalName = (String) session.createSQLQuery("SELECT email FROM ordsinvitationtable WHERE uuid = :uuid")
 				.setString("uuid", code)
 				.uniqueResult();
 			session.getTransaction().commit();
