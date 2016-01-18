@@ -1,10 +1,19 @@
 package uk.ac.ox.it.ords.api.user.resources;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+
+import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.services.UserRoleService;
@@ -13,12 +22,27 @@ import uk.ac.ox.it.ords.api.user.services.UserService;
 /**
  * Process email verification codes
  */
+@Api(value="Verification")
+@CrossOriginResourceSharing(allowAllOrigins=true)
 public class Verification {
 	
+	@ApiOperation(
+			value="Verifies a user's email"	)
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "User successfully verified.", response=uk.ac.ox.it.ords.api.user.model.User.class),
+		    @ApiResponse(code = 400, message = "Verification code invalid.")
+			})
+	// 
+	// These are used by upstream gateways; including them here makes it easier to use an API portal
+	//
+	@ApiImplicitParams({
+	    @ApiImplicitParam(name = "Version", value = "API version number", required = false, dataType = "string", paramType = "header"),
+	    @ApiImplicitParam(name = "Authorization", value = "API key", required = false, dataType = "string", paramType = "header"),
+	  })
 	@Path("/verifyemail/{c}")
 	@GET
 	public Response submitVerificationCode(
-			@PathParam("c") final String code
+			@ApiParam(value = "the verification code to check", required = true) @PathParam("c") final String code
 			) throws Exception{
 		
 		User user = null;

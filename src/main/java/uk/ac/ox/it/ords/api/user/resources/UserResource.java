@@ -1,5 +1,16 @@
 package uk.ac.ox.it.ords.api.user.resources;
 
+import java.net.URI;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
+
 import javax.annotation.PostConstruct;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,6 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 import org.apache.shiro.SecurityUtils;
 
 import uk.ac.ox.it.ords.api.user.model.OtherUser;
@@ -27,6 +39,8 @@ import uk.ac.ox.it.ords.api.user.services.UserRoleService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.VerificationEmailService;
 
+@Api(value="User")
+@CrossOriginResourceSharing(allowAllOrigins=true)
 public class UserResource {
 	
 	/**
@@ -38,6 +52,23 @@ public class UserResource {
 		UserService.Factory.getInstance().init();
 	}
 	
+	@ApiOperation(
+			value="Updates a user", 
+			notes=""
+			)
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "User successfully updated."),
+		    @ApiResponse(code = 400, message = "Invalid User supplied."),
+		    @ApiResponse(code = 403, message = "Not authorized to update this user."),
+		    @ApiResponse(code = 404, message = "User not found.")
+	})
+	// 
+	// These are used by upstream gateways; including them here makes it easier to use an API portal
+	//
+	@ApiImplicitParams({
+	    @ApiImplicitParam(name = "Version", value = "API version number", required = false, dataType = "string", paramType = "header"),
+	    @ApiImplicitParam(name = "Authorization", value = "API key", required = false, dataType = "string", paramType = "header"),
+	})
 	@Path("/{id}")
 	@PUT
 	public Response updateUser(
@@ -96,6 +127,20 @@ public class UserResource {
 		return Response.ok().build();		
 	}
 	
+	@ApiOperation(value="Deletes a user")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "User successfully deleted."),
+		    @ApiResponse(code = 400, message = "Invalid user ID supplied."),
+		    @ApiResponse(code = 403, message = "Not authorized to delete this user."),
+		    @ApiResponse(code = 404, message = "User not found or has already been deleted.")
+	})
+	// 
+	// These are used by upstream gateways; including them here makes it easier to use an API portal
+	//
+	@ApiImplicitParams({
+	    @ApiImplicitParam(name = "Version", value = "API version number", required = false, dataType = "string", paramType = "header"),
+	    @ApiImplicitParam(name = "Authorization", value = "API key", required = false, dataType = "string", paramType = "header"),
+	  })
 	@Path("/{id}")
 	@DELETE
 	public Response deleteUser(
@@ -125,6 +170,21 @@ public class UserResource {
 		
 	}
 	
+	@ApiOperation(value="Creates a user")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 201, message = "User successfully created.",
+					responseHeaders = @ResponseHeader(name = "Location", description = "The URI of the user", response = URI.class)
+					),
+		    @ApiResponse(code = 400, message = "Invalid user details."),
+		    @ApiResponse(code = 403, message = "Not authorized to create a user.")
+	})
+	// 
+	// These are used by upstream gateways; including them here makes it easier to use an API portal
+	//
+	@ApiImplicitParams({
+	    @ApiImplicitParam(name = "Version", value = "API version number", required = false, dataType = "string", paramType = "header"),
+	    @ApiImplicitParam(name = "Authorization", value = "API key", required = false, dataType = "string", paramType = "header"),
+	  })
 	@Path("/")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -132,7 +192,7 @@ public class UserResource {
 	public Response createUser(
 			User user,
 			@Context UriInfo uriInfo,
-			@QueryParam("i") final String invitationCode
+			@ApiParam(value = "Invitation code to verify, if user is being created in response to an invitation from an existing user", required = false) @QueryParam("i") final String invitationCode
 			) throws Exception{
 		
 		//
@@ -248,12 +308,28 @@ public class UserResource {
 	 * @return
 	 * @throws Exception 
 	 */
+	@ApiOperation(
+			value="Gets a user",
+			notes= "If called without parameters, this returns the currently logged-in user; you can also call this method with either a user name or an email address to return a specific user. Note that when used as a query, a more limited subset of User data is returned."
+	)
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "User successfully returned.", response=uk.ac.ox.it.ords.api.user.model.User.class),
+		    @ApiResponse(code = 403, message = "Not authorized to view user."),
+		    @ApiResponse(code = 404, message = "User not found.")
+			})
+	// 
+	// These are used by upstream gateways; including them here makes it easier to use an API portal
+	//
+	@ApiImplicitParams({
+	    @ApiImplicitParam(name = "Version", value = "API version number", required = false, dataType = "string", paramType = "header"),
+	    @ApiImplicitParam(name = "Authorization", value = "API key", required = false, dataType = "string", paramType = "header"),
+	  })
 	@Path("/")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser(
-			@QueryParam("name") final String name,
-			@QueryParam("email") final String email
+			@ApiParam(value = "optional user principal name to search for", required = false) @QueryParam("name") final String name,
+			@ApiParam(value = "optional user email address to search for", required = false) @QueryParam("email") final String email
 			) throws Exception{
 		
 		//
@@ -336,11 +412,25 @@ public class UserResource {
 	 * @return
 	 * @throws Exception 
 	 */
+	@ApiOperation(value="Gets a specified user")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "User successfully returned.", response=uk.ac.ox.it.ords.api.user.model.User.class),
+		    @ApiResponse(code = 400, message = "Invalid ID supplied."),
+		    @ApiResponse(code = 403, message = "Not authorized to view user."),
+		    @ApiResponse(code = 404, message = "User not found.")
+			})
+	// 
+	// These are used by upstream gateways; including them here makes it easier to use an API portal
+	//
+	@ApiImplicitParams({
+	    @ApiImplicitParam(name = "Version", value = "API version number", required = false, dataType = "string", paramType = "header"),
+	    @ApiImplicitParam(name = "Authorization", value = "API key", required = false, dataType = "string", paramType = "header"),
+	  })
 	@Path("/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser(
-			@PathParam("id") final int id
+			@ApiParam(value = "the ID of the user", required = true) @PathParam("id") final int id
 			) throws Exception{
 		
 		//
