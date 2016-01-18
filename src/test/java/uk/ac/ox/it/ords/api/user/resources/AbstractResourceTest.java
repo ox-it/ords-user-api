@@ -37,7 +37,6 @@ import org.junit.BeforeClass;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import uk.ac.ox.it.ords.api.user.resources.UserResource;
-import uk.ac.ox.it.ords.api.user.resources.UserRoleResource;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.impl.hibernate.HibernateUtils;
 import uk.ac.ox.it.ords.security.AbstractShiroTest;
@@ -134,7 +133,6 @@ public class AbstractResourceTest extends AbstractShiroTest {
 		//
 		ArrayList<ResourceProvider> resources = new ArrayList<ResourceProvider>();
 		resources.add(new SingletonResourceProvider(new UserResource(), true));
-		resources.add(new SingletonResourceProvider(new UserRoleResource(), true));
 		resources.add(new SingletonResourceProvider(new Verification(), true));
 		sf.setResourceProviders(resources);
 		
