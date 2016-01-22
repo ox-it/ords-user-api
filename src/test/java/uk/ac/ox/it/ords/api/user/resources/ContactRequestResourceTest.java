@@ -31,9 +31,9 @@ public class ContactRequestResourceTest extends AbstractResourceTest {
 		User user = new User();
 		user.setEmail("scott.bradley.wilson@gmail.com");
 		user.setName("Scott");
-		user.setVerificationUuid("9999");
+		user.setVerificationUuid("9999C");
 		UserService.Factory.getInstance().createUser(user);
-		user = UserService.Factory.getInstance().getUserByVerificationId("9999");
+		user = UserService.Factory.getInstance().getUserByVerificationId("9999C");
 		
 		ContactRequest contactRequest = new ContactRequest();
 		contactRequest.setEmailAddress("penguin@mailinator.com");
@@ -45,6 +45,8 @@ public class ContactRequestResourceTest extends AbstractResourceTest {
 		loginUsingSSO("anonymous","");
 		
 		assertEquals(200, getClient().path("/contact").post(contactRequest).getStatus());
+		
+		UserService.Factory.getInstance().deleteUser(user);
 		
 	}
 }
