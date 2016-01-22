@@ -29,7 +29,10 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import uk.ac.ox.it.ords.api.user.model.ContactRequest;
 import uk.ac.ox.it.ords.api.user.model.User;
+import uk.ac.ox.it.ords.api.user.services.ContactRequestService;
+import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.VerificationEmailService;
 import uk.ac.ox.it.ords.security.configuration.MetaConfiguration;
 
@@ -37,7 +40,7 @@ import uk.ac.ox.it.ords.security.configuration.MetaConfiguration;
  *
  * @author dave
  */
-public class SendMailTLS implements VerificationEmailService {
+public class SendMailTLS implements VerificationEmailService, ContactRequestService {
 
 	private Logger log = LoggerFactory.getLogger(SendMailTLS.class);
 	private Properties props;
@@ -57,6 +60,23 @@ public class SendMailTLS implements VerificationEmailService {
 		}
 		String messageText = createVerificationMessage(user);
 		if ( MetaConfiguration.getConfiguration().getBoolean("ords.mail.send")) sendMail(messageText);
+	}
+	
+	/* (non-Javadoc)
+	 * @see uk.ac.ox.it.ords.api.user.services.ContactRequestService#sendContactRequest(uk.ac.ox.it.ords.api.user.model.ContactRequest)
+	 */
+	public void sendContactRequest(ContactRequest contactRequest, User user) {
+		
+		String messageText = createContactRequestMessage(contactRequest);
+		
+		email = user.getEmail();
+		
+		if ( MetaConfiguration.getConfiguration().getBoolean("ords.mail.send")) sendMail(messageText);
+	}
+	
+	protected String createContactRequestMessage(ContactRequest contactRequest){
+		String messageText = String.format(props.getProperty("ords.mail.contact.message"), contactRequest.getEmailAddress(), contactRequest.getName(), contactRequest.getProject(), contactRequest.getMessage());
+		return messageText;
 	}
 	
 	/**
@@ -111,4 +131,6 @@ public class SendMailTLS implements VerificationEmailService {
 			log.error("Unable to send email to " + email, e);
 		}
 	}
+
+
 }
