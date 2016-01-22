@@ -134,6 +134,7 @@ public class AbstractResourceTest extends AbstractShiroTest {
 		ArrayList<ResourceProvider> resources = new ArrayList<ResourceProvider>();
 		resources.add(new SingletonResourceProvider(new UserResource(), true));
 		resources.add(new SingletonResourceProvider(new Verification(), true));
+		resources.add(new SingletonResourceProvider(new ContactRequestResource(), true));
 		sf.setResourceProviders(resources);
 		
 		//
