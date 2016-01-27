@@ -44,6 +44,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.credential.DefaultPasswordService;
 
 import uk.ac.ox.it.ords.api.user.model.OtherUser;
 import uk.ac.ox.it.ords.api.user.model.User;
@@ -53,6 +54,7 @@ import uk.ac.ox.it.ords.api.user.services.UserAuditService;
 import uk.ac.ox.it.ords.api.user.services.UserRoleService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.VerificationEmailService;
+import uk.ac.ox.it.ords.security.configuration.MetaConfiguration;
 
 @Api(value="User")
 @CrossOriginResourceSharing(allowAllOrigins=true)
@@ -211,33 +213,48 @@ public class UserResource {
 			) throws Exception{
 		
 		//
-		// We must have a logged-in user
+		// We must have a logged-in user unless we allow sign ups 
 		//
-		if (!SecurityUtils.getSubject().isAuthenticated()){
-			return Response.status(401).build();
+		if (!MetaConfiguration.getConfiguration().getBoolean("ords.allow.signups")){
+			if (!SecurityUtils.getSubject().isAuthenticated()){
+				return Response.status(401).build();
+			}
 		}
 		
 		//
 		// The special anonymous user provides public permissions;
 		// if this is the principal, we treat them as unauthenticated
 		//
-		if (SecurityUtils.getSubject().getPrincipal().equals("anonymous")){
-			UserAuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
-			return Response.status(401).build();
+		if (SecurityUtils.getSubject().getPrincipal() != null){
+			if (SecurityUtils.getSubject().getPrincipal().equals("anonymous")){
+				UserAuditService.Factory.getInstance().createNotAuthRecord("User:query", "anonymous");
+				return Response.status(401).build();
+			}
 		}
 		
 		//
 		// If the principal is null, set it to the current subject
 		//
-		if (user.getPrincipalName() == null || user.getPrincipalName() == ""){
-			user.setPrincipalName(SecurityUtils.getSubject().getPrincipal().toString());
+		if (SecurityUtils.getSubject().getPrincipal() != null){
+			if (user.getPrincipalName() == null || user.getPrincipalName() == ""){
+				user.setPrincipalName(SecurityUtils.getSubject().getPrincipal().toString());
+			}
 		}
 		
 		//
-		// Check the principal name and the user match
+		// If the principal is null and the subject are null, set the principal to be the email address
 		//
-		if (!user.getPrincipalName().equals(SecurityUtils.getSubject().getPrincipal())){
-			return Response.status(400).build();
+		if (user.getPrincipalName() == null || user.getPrincipalName() == ""){
+			user.setPrincipalName(user.getEmail());
+		}		
+		
+		//
+		// Check the principal name and the user match if we're not supporting self-sign-up
+		//
+		if (!MetaConfiguration.getConfiguration().getBoolean("ords.allow.signups")){
+			if (!user.getPrincipalName().equals(SecurityUtils.getSubject().getPrincipal())){
+				return Response.status(400).build();
+			}
 		}
 		
 		//
@@ -257,7 +274,13 @@ public class UserResource {
 		String odbcUser = user.getPrincipalName().replace("@", "").replace(".", "");
 		user.setOdbcUser(odbcUser);
 
-		
+		//
+		// Generate a password hash, if a password was requested
+		//
+		if (user.getPasswordRequest() != null && !user.getPasswordRequest().isEmpty()){
+			DefaultPasswordService passwordService = new DefaultPasswordService();
+			user.setToken(passwordService.encryptPassword(user.getPasswordRequest()));
+		}
 		//
 		// If we have an invitation code, look it up
 		//
@@ -402,6 +425,14 @@ public class UserResource {
 		// There is no user for the principal.
 		//
 		if (user == null){
+			
+			//
+			// If the principal name is null we aren't logged in 
+			//
+			if (principalName == null){
+				return Response.status(401).build();				
+			}
+			
 			//
 			// The special anonymous user provides public permissions;
 			// if this is the principal, we treat them as unauthenticated
@@ -416,6 +447,7 @@ public class UserResource {
 			// they have authenticated. In which case we need to prompt
 			// the client to register them.
 			//
+			System.out.println("we're looking for.." + principalName);
 			return Response.status(404).build();
 		}
 	

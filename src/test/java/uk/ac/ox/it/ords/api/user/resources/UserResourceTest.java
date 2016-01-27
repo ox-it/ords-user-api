@@ -12,6 +12,7 @@ import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.model.User.AccountStatus;
 import uk.ac.ox.it.ords.api.user.services.UserRoleService;
 import uk.ac.ox.it.ords.api.user.services.UserService;
+import uk.ac.ox.it.ords.security.configuration.MetaConfiguration;
 
 public class UserResourceTest extends AbstractResourceTest {
 
@@ -37,6 +38,11 @@ public class UserResourceTest extends AbstractResourceTest {
 	}
 	
 	@Test
+	public void getUserUnauth(){
+		assertEquals(401, getClient().path("/").get().getStatus());
+	}
+	
+	@Test
 	public void getUserNonexisting(){
 		loginUsingSSO("pingu", "pingu");
 		assertEquals(404, getClient().path("/999").get().getStatus());
@@ -58,6 +64,9 @@ public class UserResourceTest extends AbstractResourceTest {
 	// We only allow self-registration for authenticated users
 	@Test
 	public void createUserUnauth(){
+		
+		MetaConfiguration.getConfiguration().setProperty("ords.allow.signups", false);
+		
 		User user = new User();
 		user.setPrincipalName("pinga");
 		user.setName("Pinga");		
@@ -66,11 +75,15 @@ public class UserResourceTest extends AbstractResourceTest {
 		loginUsingSSO("anonymous","");
 		assertEquals(401, getClient().path("/").post(user).getStatus());
 
+
 	}
 	
 	// We only allow self-registration for authenticated users
 	@Test
 	public void createAnotherUserUnauth(){
+		
+		MetaConfiguration.getConfiguration().setProperty("ords.allow.signups", false);
+		
 		User user = new User();
 		user.setPrincipalName("pinga");
 		user.setName("Pinga");		
@@ -396,6 +409,93 @@ public class UserResourceTest extends AbstractResourceTest {
 		user.setName("Ms P. Penguin");
 		assertEquals(403, getClient().path(userUri.getPath()).put(user).getStatus());
 
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
+		logout();
+		
+	}
+	
+	@Test
+	public void createUserWithPasswordHash(){
+		
+		MetaConfiguration.getConfiguration().setProperty("ords.allow.signups", true);
+		
+		//
+		// Register
+		//
+		User user = new User();
+		user.setPrincipalName("pinga");
+		user.setName("Pinga");
+		user.setEmail("pinga@mailinator.com");
+		user.setPasswordRequest("penguin");
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI userUri = response.getLocation();
+		
+		//
+		// Login
+		//
+		login("pinga", "penguin");
+		assertEquals(200, getClient().path("/").get().getStatus());
+		logout();
+		
+		//
+		// Login using the wrong password
+		//
+		try {
+			login("pinga", "banana");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertEquals(401, getClient().path("/").get().getStatus());
+		
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
+		logout();
+		
+	}
+	
+	//
+	// test that if we don't supply a password, that doesn't make the account
+	// open to login with a null password
+	//
+	@Test
+	public void createUserWithNoPassword(){
+		
+		MetaConfiguration.getConfiguration().setProperty("ords.allow.signups", true);
+		
+		//
+		// Register
+		//
+		User user = new User();
+		user.setPrincipalName("pinga");
+		user.setName("Pinga");
+		user.setEmail("pinga@mailinator.com");
+		user.setPasswordRequest("");
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI userUri = response.getLocation();
+		// Read back so we have the correct ID
+		user = getClient().path("/").get().readEntity(User.class);
+		
+		logout();
+		
+		//
+		// Login
+		//
+		try {
+			login("pinga", "");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertEquals(401, getClient().path("/").get().getStatus());
+		
 		// Clean up
 		loginUsingSSO("admin", "admin");
 		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());

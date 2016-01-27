@@ -20,6 +20,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -34,6 +35,15 @@ public class User {
     private String principalName;
     private String principalType;
     private String odbcUser;
+    
+    @Transient
+    private String passwordRequest;
+    
+    //
+    // Password hash if using built-in authentication
+    //
+    @JsonIgnore 
+    private String token;
     
     @Id
     @GeneratedValue
@@ -142,6 +152,24 @@ public class User {
 
 	public void setOdbcUser(String odbcUser) {
 		this.odbcUser = odbcUser;
+	}
+
+    @JsonIgnore 
+	public String getToken() {
+		return token;
+	}
+    
+    @JsonIgnore 
+	public void setToken(String token) {
+		this.token = token;
+	}
+  
+	public String getPasswordRequest() {
+		return passwordRequest;
+	}
+
+	public void setPasswordRequest(String passwordRequest) {
+		this.passwordRequest = passwordRequest;
 	}
 
 }
