@@ -15,7 +15,6 @@
  */
 package uk.ac.ox.it.ords.api.user.services;
 
-import java.util.List;
 import java.util.ServiceLoader;
 
 import uk.ac.ox.it.ords.api.user.model.User;
@@ -35,13 +34,9 @@ public interface UserService {
 	public User getUserByVerificationId(String verificationId) throws Exception;
 		
 	public User getUserByEmailAddress(String email) throws Exception;
-	
-	public User getUserByOdbcUser(String odbcuser) throws Exception;
-	
+		
 	public User getUser(int userId) throws Exception;
-	
-	public List<User> getUserList();
-	
+		
     public void updateUser(User user) throws Exception;
     
     public void createUser(User user) throws Exception;

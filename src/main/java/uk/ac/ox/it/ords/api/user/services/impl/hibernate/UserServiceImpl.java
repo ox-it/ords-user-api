@@ -105,11 +105,6 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		}
 	}
 
-	public User getUserByOdbcUser(String odbcuser) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public User getUser(int userId) throws Exception {
 		Session session = this.sessionFactory.getCurrentSession();
 		try {
@@ -123,11 +118,6 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		} finally {
 			  HibernateUtils.closeSession();
 		}
-	}
-
-	public List<User> getUserList() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	/* (non-Javadoc)
