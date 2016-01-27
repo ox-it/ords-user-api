@@ -32,7 +32,6 @@ import javax.mail.internet.MimeMessage;
 import uk.ac.ox.it.ords.api.user.model.ContactRequest;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.services.ContactRequestService;
-import uk.ac.ox.it.ords.api.user.services.UserService;
 import uk.ac.ox.it.ords.api.user.services.VerificationEmailService;
 import uk.ac.ox.it.ords.security.configuration.MetaConfiguration;
 
