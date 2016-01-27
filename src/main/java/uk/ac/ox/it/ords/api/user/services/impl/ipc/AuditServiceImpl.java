@@ -15,8 +15,6 @@
  */
 package uk.ac.ox.it.ords.api.user.services.impl.ipc;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.UnavailableSecurityManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,16 +26,6 @@ import uk.ac.ox.it.ords.security.services.AuditService;
 public class AuditServiceImpl implements UserAuditService {
 	
 	Logger log = LoggerFactory.getLogger(AuditServiceImpl.class);
-	
-	private String getPrincipalName(){
-		try {
-			if (SecurityUtils.getSubject() == null || SecurityUtils.getSubject().getPrincipal() == null) return "Unauthenticated";
-			return SecurityUtils.getSubject().getPrincipal().toString();
-		} catch (UnavailableSecurityManagerException e) {
-			log.warn("Audit being called with no valid security context. This is probably caused by being called from unit tests");
-			return "Security Manager Not Configured";
-		}
-	}
 
 	public void createNotAuthRecord(String request, String user) {
 		Audit audit= new Audit();
@@ -55,28 +43,36 @@ public class AuditServiceImpl implements UserAuditService {
 	}
 
 	public void createLoginRecord(User user) {
-		// TODO Auto-generated method stub
-		
+		createLoginRecord(user.getPrincipalName());		
 	}
 
 	public void createLoginFailedRecord(String message, String userId) {
-		// TODO Auto-generated method stub
-		
+		Audit audit= new Audit();
+		audit.setAuditType(Audit.AuditType.LOGIN_FAILED.name());
+		audit.setUserId(userId);
+		audit.setMessage(message);
+		AuditService.Factory.getInstance().createNewAudit(audit);	
 	}
 
 	public void createLoginFailedRecord(String message) {
-		// TODO Auto-generated method stub
-		
+		Audit audit= new Audit();
+		audit.setAuditType(Audit.AuditType.LOGIN_FAILED.name());
+		audit.setMessage(message);
+		AuditService.Factory.getInstance().createNewAudit(audit);		
 	}
 
 	public void createLogoffRecord(String userId) {
-		// TODO Auto-generated method stub
-		
+		Audit audit= new Audit();
+		audit.setAuditType(Audit.AuditType.LOGOFF.name());
+		audit.setUserId(userId);
+		AuditService.Factory.getInstance().createNewAudit(audit);
 	}
 
 	public void createSignupRecord(User user) {
-		// TODO Auto-generated method stub
-		
+		Audit audit= new Audit();
+		audit.setAuditType(Audit.AuditType.SIGNUP.name());
+		audit.setUserId(user.getPrincipalName());
+		AuditService.Factory.getInstance().createNewAudit(audit);
 	}
 	
 	
