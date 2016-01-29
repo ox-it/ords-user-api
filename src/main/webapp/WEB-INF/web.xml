@@ -46,7 +46,8 @@
 		  <param-value>
 		    uk.ac.ox.it.ords.api.user.resources.UserResource,
 		    uk.ac.ox.it.ords.api.user.resources.Verification,
-		    uk.ac.ox.it.ords.api.user.resources.ContactRequestResource  
+		    uk.ac.ox.it.ords.api.user.resources.ContactRequestResource, 
+		    uk.ac.ox.it.ords.api.user.resources.Login  
 		  </param-value>
 		   		</init-param>
 		   	         <init-param>	
