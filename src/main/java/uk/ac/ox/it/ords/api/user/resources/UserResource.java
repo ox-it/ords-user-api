@@ -335,6 +335,7 @@ public class UserResource {
 		//
 		// Return 201 with location of User object
 		//
+		UserAuditService.Factory.getInstance().createSignupRecord(user);
 	    UriBuilder builder = uriInfo.getAbsolutePathBuilder();
 	    builder.path(Integer.toString(user.getUserId()));
 	    return Response.created(builder.build()).build();
