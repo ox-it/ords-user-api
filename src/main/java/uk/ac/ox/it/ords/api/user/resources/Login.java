@@ -76,7 +76,9 @@ public class Login {
 	public Response logout(
 			){	
 		try {
+			String principalName = (String) SecurityUtils.getSubject().getPrincipal();
 			SecurityUtils.getSubject().logout();
+			UserAuditService.Factory.getInstance().createLogoffRecord(principalName);
 			return Response.status(200).build();
 		} catch (Exception e) {
 			return Response.status(400).build();
