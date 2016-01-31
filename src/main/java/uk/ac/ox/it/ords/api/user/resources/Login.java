@@ -16,6 +16,7 @@
 package uk.ac.ox.it.ords.api.user.resources;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -33,7 +34,7 @@ import uk.ac.ox.it.ords.api.user.services.UserAuditService;
  * Performs a login with a user name and password using the Shiro security manager.
  */
 public class Login {
-	
+
 	/**
 	 * Perform a login with this user
 	 * @param username
@@ -48,22 +49,39 @@ public class Login {
 			@FormParam("username") String username, 
 			@FormParam("password") String password,
 			@FormParam("rememberMe") String rememberMe
-	){		
-		    try {
-		    	//
-		    	// Login succeeded - create an audit record and return 200
-		    	//
-			    AuthenticationToken token =  new UsernamePasswordToken(username, password);
-				SecurityUtils.getSubject().login(token);
-				UserAuditService.Factory.getInstance().createLoginRecord(username);
-				return Response.ok().build();
-			} catch (AuthenticationException e) {
-				//
-				// Login failed - create an audit record and return 401
-				//
-				UserAuditService.Factory.getInstance().createLoginFailedRecord("", username);
-				return Response.status(401).build();
-			}
+			){		
+		try {
+			//
+			// Login succeeded - create an audit record and return 200
+			//
+			AuthenticationToken token =  new UsernamePasswordToken(username, password);
+			SecurityUtils.getSubject().login(token);
+			UserAuditService.Factory.getInstance().createLoginRecord(username);
+			return Response.ok().build();
+		} catch (AuthenticationException e) {
+			//
+			// Login failed - create an audit record and return 401
+			//
+			UserAuditService.Factory.getInstance().createLoginFailedRecord("", username);
+			return Response.status(401).build();
 		}
+	}
+	
+	/**
+	 * Perform a logout for the current session
+	 */
+	@Path("/logout")
+	@DELETE
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response logout(
+			){	
+		try {
+			SecurityUtils.getSubject().logout();
+			return Response.status(200).build();
+		} catch (Exception e) {
+			return Response.status(400).build();
+		}
+
+	}
 
 }
