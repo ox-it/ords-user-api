@@ -1,0 +1,36 @@
+# ords-user-api
+
+The user API for the Online Research Database Services (ORDS)
+
+## API Documentation
+
+When deployed, documentation can be found at /api/1.0/user/swagger.json
+
+## Configuration Properties
+
+   ords.allow.signups=false
+
+If set to TRUE, anonymous users can self-register for new accounts
+
+    ords.localsuffix=ox.ac.uk
+
+The localuser suffix is used to automatically map a principal to the localuser role; a localuser has permission to create new projects.
+
+Generally you will set this to be your organisation's domain as used in email addresses.
+
+    ords.mail.send = false
+
+Whether to enable account signup verification emails.
+
+    ords.mail.verification.address=http://localhost/app/verify/%s
+    
+The verification URL to send the user. The %s token will be replaced with the verification UUID.
+
+    ords.mail.verification.message=Hi %s\n\nIn order to ensure you are able to receive emails from us\, please click the following link (if the link below is not clickable\, then please copy and paste the URL into a web browser). This will complete the registration process.\n\n%s\n\nThe ORDS Team
+
+The verification message. The first %s token is replaced with user.name; the second with the verification URL.
+
+    ords.mail.contact.message=You have been sent a message by a user with email address of <%s> and name %s. They are interested in your project <%s> and have sent you the following message\n\n%s
+
+The contact request message. Tokens are replaced with sender email and name, project name, and message.
+
