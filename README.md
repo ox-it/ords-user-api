@@ -8,7 +8,9 @@ When deployed, documentation can be found at /api/1.0/user/swagger.json
 
 ## Configuration Properties
 
-   ords.allow.signups=false
+The following properties can be set using the ords.properties file (as defined in config.xml)
+
+    ords.allow.signups=false
 
 If set to TRUE, anonymous users can self-register for new accounts
 
