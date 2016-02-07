@@ -19,11 +19,11 @@ import java.util.ServiceLoader;
 
 import uk.ac.ox.it.ords.api.user.model.ContactRequest;
 import uk.ac.ox.it.ords.api.user.model.User;
-import uk.ac.ox.it.ords.api.user.services.impl.SendMailTLS;
+import uk.ac.ox.it.ords.api.user.services.impl.ContactRequestServiceImpl;
 
 public interface ContactRequestService {
 	
-	public void sendContactRequest(ContactRequest contactRequest, User user);
+	public void sendContactRequest(ContactRequest contactRequest, User user) throws Exception;
 	
 	/**
 	 * Factory for obtaining implementations
@@ -48,7 +48,7 @@ public interface ContactRequestService {
 	    	// If no service provider is found, use the default
 	    	//
 	    	if (provider == null){
-	    		provider = new SendMailTLS();
+	    		provider = new ContactRequestServiceImpl();
 	    	}
 	    	
 	    	return provider;

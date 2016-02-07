@@ -18,11 +18,11 @@ package uk.ac.ox.it.ords.api.user.services;
 import java.util.ServiceLoader;
 
 import uk.ac.ox.it.ords.api.user.model.User;
-import uk.ac.ox.it.ords.api.user.services.impl.SendMailTLS;
+import uk.ac.ox.it.ords.api.user.services.impl.VerificationEmailServiceImpl;
 
 public interface VerificationEmailService {
 
-	public void sendVerificationMessage(User user);
+	public void sendVerificationMessage(User user) throws Exception;
 	
 	/**
 	 * Factory for obtaining implementations
@@ -47,7 +47,7 @@ public interface VerificationEmailService {
 	    	// If no service provider is found, use the default
 	    	//
 	    	if (provider == null){
-	    		provider = new SendMailTLS();
+	    		provider = new VerificationEmailServiceImpl();
 	    	}
 	    	
 	    	return provider;

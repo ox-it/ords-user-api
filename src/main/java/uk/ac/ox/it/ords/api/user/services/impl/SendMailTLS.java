@@ -29,78 +29,38 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import uk.ac.ox.it.ords.api.user.model.ContactRequest;
-import uk.ac.ox.it.ords.api.user.model.User;
-import uk.ac.ox.it.ords.api.user.services.ContactRequestService;
-import uk.ac.ox.it.ords.api.user.services.VerificationEmailService;
 import uk.ac.ox.it.ords.security.configuration.MetaConfiguration;
 
 /**
  *
  * @author dave
  */
-public class SendMailTLS implements VerificationEmailService, ContactRequestService {
-
+public class SendMailTLS {
+	
 	private Logger log = LoggerFactory.getLogger(SendMailTLS.class);
-	private Properties props;
-	private String email;
+	protected Properties props;
+	protected String email;
 
 	public SendMailTLS() {
 		props = ConfigurationConverter.getProperties(MetaConfiguration.getConfiguration());
 	}
-
-	/* (non-Javadoc)
-	 * @see uk.ac.ox.it.ords.api.user.services.VerificationEmailService#sendVerificationMessage(uk.ac.ox.it.ords.api.user.model.User)
-	 */
-	public void sendVerificationMessage(User user) {
-		if (user == null) {
-			log.error("Null user here - this is bad!");
-			return;
-		}
-		String messageText = createVerificationMessage(user);
-		if ( MetaConfiguration.getConfiguration().getBoolean("ords.mail.send")) sendMail(messageText);
-	}
 	
-	/* (non-Javadoc)
-	 * @see uk.ac.ox.it.ords.api.user.services.ContactRequestService#sendContactRequest(uk.ac.ox.it.ords.api.user.model.ContactRequest)
-	 */
-	public void sendContactRequest(ContactRequest contactRequest, User user) {
-		
-		String messageText = createContactRequestMessage(contactRequest);
-		
-		email = user.getEmail();
-		
-		if ( MetaConfiguration.getConfiguration().getBoolean("ords.mail.send")) sendMail(messageText);
-	}
-	
-	protected String createContactRequestMessage(ContactRequest contactRequest){
-		String messageText = String.format(props.getProperty("ords.mail.contact.message"), contactRequest.getEmailAddress(), contactRequest.getName(), contactRequest.getProject(), contactRequest.getMessage());
-		return messageText;
-	}
-	
-	/**
-	 * Generate the verification URL the user should use to click through.
-	 * @param user
-	 * @return
-	 */
-	protected String getVerificationUrl(User user){
-		String link = String.format(props.getProperty("ords.mail.verification.address"), user.getVerificationUuid());
-		return link;
-	}
-	
-	protected String createVerificationMessage(User user){
-		String messageText = String.format(props.getProperty("ords.mail.verification.message"), user.getName(), getVerificationUrl(user));
-		email = user.getEmail();
-		if (log.isDebugEnabled()) {
-			log.debug("The email I want to send is:" + messageText);
-		}
-		return messageText;
+	public SendMailTLS(Properties properties){
+		props = properties;
 	}
 
-	private void sendMail(String messageText) {
-		if (props.get("mail.smtp.username") == null) {
-			log.error("Unable to send emails due to null user");
-			return;
+	protected void sendMail(String subject, String messageText) throws Exception {
+		
+		//
+		// Validate Mail server settings
+		//
+		if (
+				!props.containsKey("mail.smtp.username")  ||
+				!props.containsKey("mail.smtp.password")  ||
+				!props.containsKey("mail.smtp.host")
+		) {
+			    log.error("Unable to send emails as email server configuration is missing");
+			    throw new Exception("Unable to send emails as email server configuration is missing");			
 		}
 		
 		Session session = Session.getInstance(props,
@@ -115,9 +75,8 @@ public class SendMailTLS implements VerificationEmailService, ContactRequestServ
 			Message message = new MimeMessage(session);
 			message.setRecipients(Message.RecipientType.TO,
 					InternetAddress.parse(email));
-			message.setSubject(props.getProperty("mail.smtp.subject"));
+			message.setSubject(subject);
 			message.setText(messageText);
-			message.setFrom(new InternetAddress("ords@it.ox.ac.uk"));
 
 			Transport.send(message);
 
@@ -128,6 +87,7 @@ public class SendMailTLS implements VerificationEmailService, ContactRequestServ
 		}
 		catch (MessagingException e) {
 			log.error("Unable to send email to " + email, e);
+			throw new Exception("Unable to send email to " + email, e);
 		}
 	}
 
