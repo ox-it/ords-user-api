@@ -164,6 +164,14 @@
 			<version>2.5</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		<!--  Testing -->
+		<dependency>
+			<groupId>org.jvnet.mock-javamail</groupId>
+			<artifactId>mock-javamail</artifactId>
+			<version>1.9</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 </project>
