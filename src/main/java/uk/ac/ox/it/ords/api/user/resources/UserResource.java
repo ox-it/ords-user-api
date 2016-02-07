@@ -138,6 +138,12 @@ public class UserResource {
 		}
 		
 		//
+		// Re-fill values that cannot be updated via User API
+		//
+		user.setToken(originalUser.getToken());
+		user.setVerificationUuid(originalUser.getVerificationUuid());
+		
+		//
 		// Update the User
 		//
 		UserService.Factory.getInstance().updateUser(user);

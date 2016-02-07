@@ -274,7 +274,7 @@ public class UserResourceTest extends AbstractResourceTest {
 		user.setPrincipalName("pinga");
 		user.setName("Pinga");
 		user.setEmail("pinga@mailinator.com");
-		
+
 		Response response = getClient().path("/").post(user);
 		assertEquals(201, response.getStatus());
 		URI userUri = response.getLocation();
@@ -289,12 +289,27 @@ public class UserResourceTest extends AbstractResourceTest {
 		UserRoleService.Factory.getInstance().verifyUser(user);
 		
 		//
+		// Set the password token manually, just to check a PUT can't override it
+		//
+		User vuser = UserService.Factory.getInstance().getUser(user.getUserId());
+		vuser.setToken("BANANA");
+		UserService.Factory.getInstance().updateUser(vuser);
+		vuser = UserService.Factory.getInstance().getUser(user.getUserId());
+		assertEquals("BANANA", vuser.getToken());
+		
+		//
 		// Update
 		//
 		user.setName("Ms P. Penguin");
 		assertEquals(200, getClient().path(userUri.getPath()).put(user).getStatus());
 		User updatedUser = getClient().path(userUri.getPath()).get().readEntity(User.class);
 		assertEquals("Ms P. Penguin", updatedUser.getName());
+		
+		//
+		// Check password token wasn't updated
+		//
+		User updatedUserComplete = UserService.Factory.getInstance().getUser(updatedUser.getUserId());
+		assertEquals("BANANA", updatedUserComplete.getToken());
 		
 		// Clean up
 		loginUsingSSO("admin", "admin");
