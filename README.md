@@ -28,9 +28,17 @@ Whether to enable account signup verification emails.
     
 The verification URL to send the user. The %s token will be replaced with the verification UUID.
 
+    ords.mail.verification.subject=Message from ORDS
+    
+The subject line to use for verification emails.
+
     ords.mail.verification.message=Hi %s\n\nIn order to ensure you are able to receive emails from us\, please click the following link (if the link below is not clickable\, then please copy and paste the URL into a web browser). This will complete the registration process.\n\n%s\n\nThe ORDS Team
 
 The verification message. The first %s token is replaced with user.name; the second with the verification URL.
+
+    ords.mail.contact.subject=Message from ORDS
+    
+The subject line to use for contact request emails.
 
     ords.mail.contact.message=You have been sent a message by a user with email address of <%s> and name %s. They are interested in your project <%s> and have sent you the following message\n\n%s
 
