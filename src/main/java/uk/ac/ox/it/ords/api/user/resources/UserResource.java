@@ -492,7 +492,6 @@ public class UserResource {
 			// they have authenticated. In which case we need to prompt
 			// the client to register them.
 			//
-			System.out.println("we're looking for.." + principalName);
 			return Response.status(404).build();
 		}
 	
