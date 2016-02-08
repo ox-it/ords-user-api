@@ -248,6 +248,26 @@ public class UserResource {
 		}
 		
 		//
+		// If we don't have an email address given, or a principal name,
+		// check if there is an invitation code that matches
+		//
+		// If there is, then lets look up the email address and add it to the user object
+		//
+		// This scenario takes place where we support invites and self-signup without
+		// SSO; in this case we only get the invite code with no user principal available
+		//
+		if (user.getPrincipalName() == null || user.getPrincipalName() == ""){
+			if (user.getEmail() == null || user.getEmail().isEmpty()){
+				if (invitationCode != null){
+					if (MetaConfiguration.getConfiguration().getBoolean("ords.allow.signups")){
+						String email = InvitationCodeService.Factory.getInstance().getUserByInvitationCode(invitationCode);
+						user.setEmail(email);
+					}
+				}
+			}
+		}
+		
+		//
 		// If the principal is null and the subject are null, set the principal to be the email address
 		//
 		if (user.getPrincipalName() == null || user.getPrincipalName() == ""){
@@ -287,6 +307,7 @@ public class UserResource {
 			DefaultPasswordService passwordService = new DefaultPasswordService();
 			user.setToken(passwordService.encryptPassword(user.getPasswordRequest()));
 		}
+		
 		//
 		// If we have an invitation code, look it up
 		//
@@ -374,7 +395,9 @@ public class UserResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser(
 			@ApiParam(value = "optional user principal name to search for", required = false) @QueryParam("name") final String name,
-			@ApiParam(value = "optional user email address to search for", required = false) @QueryParam("email") final String email
+			@ApiParam(value = "optional user email address to search for", required = false) @QueryParam("email") final String email,
+			@ApiParam(value = "optional invitation code to search for", required = false) @QueryParam("code") final String code
+
 			) throws Exception{
 		
 		//
@@ -410,6 +433,21 @@ public class UserResource {
 			OtherUser otherUser = new OtherUser(user);
 			return Response.ok(otherUser).build();
 			
+		}
+		
+		//
+		// Or a query by invitation code. In this case we only say "yes, they are a user".
+		// The use case for this is when we want to know if an invitation is for a current user
+		// to join a project, or for a non-user to register and join.
+		//
+		if (code != null){
+			String invitationEmail = InvitationCodeService.Factory.getInstance().getUserByInvitationCode(code);
+			if (invitationEmail != null){
+				User user = UserService.Factory.getInstance().getUserByEmailAddress(email);
+				if (user != null)
+					return Response.ok().build();
+			} 
+			return Response.status(404).build();
 		}
 		
 		//
