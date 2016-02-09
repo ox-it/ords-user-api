@@ -144,6 +144,16 @@ public class UserResource {
 		user.setVerificationUuid(originalUser.getVerificationUuid());
 		
 		//
+		// If the passwordRequest field is filled in, generate a new
+		// token
+		//
+		if (user.getPasswordRequest() != null && !user.getPasswordRequest().isEmpty()){
+			DefaultPasswordService passwordService = new DefaultPasswordService();
+			user.setToken(passwordService.encryptPassword(user.getPasswordRequest()));
+			UserAuditService.Factory.getInstance().createPasswordChangeRecord(user);
+		}
+		
+		//
 		// Update the User
 		//
 		UserService.Factory.getInstance().updateUser(user);

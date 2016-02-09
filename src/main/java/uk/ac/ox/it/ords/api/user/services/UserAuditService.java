@@ -73,6 +73,12 @@ public interface UserAuditService {
 	public void createSignupRecord(User user);
 	
 	/**
+	 * Create a record that a user requested a password change
+	 * @param user
+	 */
+	public void createPasswordChangeRecord(User user);
+	
+	/**
 	 * Factory for obtaining implementations
 	 */
     public static class Factory {

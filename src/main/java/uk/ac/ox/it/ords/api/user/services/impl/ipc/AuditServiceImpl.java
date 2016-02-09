@@ -74,6 +74,16 @@ public class AuditServiceImpl implements UserAuditService {
 		audit.setUserId(user.getPrincipalName());
 		AuditService.Factory.getInstance().createNewAudit(audit);
 	}
+
+	@Override
+	public void createPasswordChangeRecord(User user) {
+		Audit audit = new Audit();
+		audit.setAuditType(Audit.AuditType.PASSWORD_CHANGE.name());
+		audit.setUserId(user.getPrincipalName());
+		AuditService.Factory.getInstance().createNewAudit(audit);
+	}
+	
+	
 	
 	
 

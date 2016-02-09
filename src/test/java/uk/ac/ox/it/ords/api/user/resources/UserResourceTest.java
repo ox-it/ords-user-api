@@ -263,6 +263,64 @@ public class UserResourceTest extends AbstractResourceTest {
 	}
 	
 	@Test
+	public void resetPassword() throws Exception{
+	
+		MetaConfiguration.getConfiguration().setProperty("ords.allow.signups", true);
+		
+		//
+		// Register
+		//
+		User user = new User();
+		user.setPrincipalName("pingi");
+		user.setName("Pingi");
+		user.setEmail("pingi@mailinator.com");
+		user.setPasswordRequest("iamapenguin");
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI userUri = response.getLocation();
+		
+		//
+		// Login
+		//
+		login("pingi", "iamapenguin");
+		assertEquals(200, getClient().path("/").get().getStatus());
+		user = getClient().path("/").get().readEntity(User.class);
+		
+		//
+		// Verify the user so that they are allowed to update
+		//
+		user.setStatus(User.AccountStatus.VERIFIED.name());
+		UserService.Factory.getInstance().updateUser(user);
+		UserRoleService.Factory.getInstance().verifyUser(user);
+		
+		//
+		// Reset password
+		//
+		user.setPasswordRequest("iamnotapenguin");
+		assertEquals(200, getClient().path(userUri.getPath()).put(user).getStatus());
+
+		//
+		// Login again
+		//
+		logout();
+		login("pingi", "iamnotapenguin");
+		assertEquals(200, getClient().path("/").get().getStatus());
+		
+		//
+		// Reset with blank or empty to make sure it never overwrites the token
+		//
+		user = getClient().path("/").get().readEntity(User.class);
+		assertEquals(200, getClient().path(userUri.getPath()).put(user).getStatus());
+		logout();
+		login("pingi", "iamnotapenguin");
+		assertEquals(200, getClient().path("/").get().getStatus());
+
+		logout();
+		
+	}
+	
+	@Test
 	public void updateSelf() throws Exception{
 		
 		//
