@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>uk.ac.ox.it.ords</groupId>
 	<artifactId>ords-user-api</artifactId>
 	<packaging>war</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Users microservice for ORDS</description>
@@ -66,7 +65,8 @@
 		<url>https://github.com/ox-it/ords-user-api</url>
 		<connection>scm:git:git://github.com/ox-it/ords-user-api.git</connection>
 		<developerConnection>scm:git:git@github.com:ox-it/ords-user-api.git</developerConnection>
-	</scm>
+	  <tag>ords-user-api-0.0.1</tag>
+  </scm>
 	
 	<reporting>
 		<plugins>
