@@ -1,0 +1,15 @@
+language: java
+services:
+  - postgresql
+before_script:
+  - psql -c 'create user ords superuser;' -U postgres
+  - psql -c 'create database ordstest owner ords;' -U postgres
+
+after_success:
+  - test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" != "" && mvn deploy --settings settings.xml
+
+env:
+  global:
+    - secure: "HQTmirCOM9LC3hEvRvcFXAFcQSDvuXfOVM8Z7KDIlqWVaLofnfQ8kK4owQBeAJOjgBxlgemJgV0RIcU0la4YDGDj/ntlLBBVk26Vbc44v7JpmnRkF4Mp41cpnDPobTuDdm0XdjLy5BkYP85bRpAi/nVFfMv2xRLt5T/JhtQvNa9XYgHTUSBIxqxFZcblx6mKvlHQpgcODX+edXBlj2FR90iNmM6DJAULFEhHwCIwQLgE8fBAh/7jnXSggmVafi8OOfB8wbQhXWMPzpI2LJrMVS8XbYRKcrUwtoocKDrlHp4xWaWjZ0ooZaLzdV0rFDUAiRHZHnLi7qdlYvwbRlYorF387OmvTweNOdQpxc2Eb+jrwaR7yqvZ9zygp40uuemjTHE4q+ptLeGR+ItxnZ5oWGhc+c2TXHlYCnRdjVT08vs5vho0GV0O7JtQGqLJz3YNI7Yd+MA66TbzgBgLmekYPhgg8zgQ+iLWvCAnv5G2yON2MpStSVwK4A98/nzHTLEzmhMn1ctVoc5y0CHgkSdWKsyyw61T8xB50KN1Yt74SsQbB0HvJzAkAXR3u5nhDD2vqj2TO9Ougn3afXJ9/wTSz+8UDo+eXomcfqwE3YUh1S9+dJjEgb31JLV1nuIWjoKPGXTf1JnE6HMDu7xoejpc1FL2EwtHps6EvjPdfGkSTEA="
+    - secure: "Hqhr/jsD5P0lN7eoyOCx4OH2kq1KuI1ZXT3N2pFcf0aB/jfvPBNmiGKcZ5oqZBH6c0zhM5iV4MjnRK6wFb67X4xWZDCWmtJ63yMmkycS9nnoWd8LrfGAfNK210DYwlT5cLttUkJS6Jull4GrJqUD7ozcPnVgjPq8nQBXDU80OVRlORTAMbXH273RiSykHRToIEcdQwDivld0ouTLspz0UH1noZbY6Lk56STG1iTGCU/b681i8MobX//ytjaWv4DP6Pv1javIEmWSZeMrUAjUEsmYeOyTvmPuH53eeLbD7+z5fOgzBltEJsmQ8uqK7OOLgjYnq1RPW4Zag0s1j8yds3fVlUbreO8H4sgAW6oEebSwriqmQs7wjWQiVjwh7HcMTiZlz7DBg7T6+Un14SrtD0rgLRP8J7CVNO/KhtifkCdbecgSgqR8Nk6DDI/m09m2CdWaeJJM/7xRxUsrmWGjkdRpoDRVO6a8KJixvdlKnq1xh7f/mYm3yiGgjvAbNy2fts1sI6NAJBTx8m320mS2AI7K7NPqGO5vMXUmeYUSJZdlLtCdI7z8SEyyRQWMvP3vAVqR5ykv8Dg1SOJSCK5BMfXEgrO8mEVpDKiroyc+ia1S+S8jupaR5fodOKGZa5VYpQ/piTjZPjEK23ct88TEcHwFDp5v686MMvdvL/PFsLo="
+	  
