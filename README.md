@@ -2,6 +2,8 @@
 
 The user API for the Online Research Database Services (ORDS)
 
+![build status image](https://travis-ci.org/ox-it/ords-user-api.svg?branch=master) [![Download](https://api.bintray.com/packages/scottbw/ords/ords-user-api/images/download.svg) ](https://bintray.com/scottbw/ords/ords-user-api/_latestVersion)
+
 ## API Documentation
 
 When deployed, documentation can be found at /api/1.0/user/swagger.json
