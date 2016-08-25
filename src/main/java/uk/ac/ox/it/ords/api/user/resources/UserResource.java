@@ -140,6 +140,7 @@ public class UserResource {
 		//
 		// Re-fill values that cannot be updated via User API
 		//
+		user.setStatus(originalUser.getStatus());
 		user.setToken(originalUser.getToken());
 		user.setVerificationUuid(originalUser.getVerificationUuid());
 		
