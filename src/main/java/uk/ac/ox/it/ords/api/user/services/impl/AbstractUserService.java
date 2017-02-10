@@ -62,16 +62,6 @@ public abstract class AbstractUserService implements UserService {
 		}
 		
 		//
-		// Anyone with the "LocalUser" role can create new trial projects
-		//
-		for (String permission : UserPermissionSets.getPermissionsForLocalUser()){
-			Permission permissionObject = new Permission();
-			permissionObject.setRole("localuser");
-			permissionObject.setPermission(permission);
-			service.createPermission(permissionObject);
-		}
-		
-		//
 		// Anyone with the "Administrator" role can create new full
 		// projects and upgrade projects to full, and update any
 		// user projects

@@ -40,14 +40,6 @@ public class UserPermissionSets {
 		permissions.add(UserPermissions.USER_CREATE_SELF);
 		permissions.add(UserPermissions.USER_MODIFY_SELF);
 		permissions.add(UserPermissions.PROJECT_VIEW_PUBLIC);
-		return permissions;
-	}
-	
-	public static List<String> getPermissionsForLocalUser(){
-		ArrayList<String> permissions = new ArrayList<String>();
-		permissions.add(UserPermissions.USER_CREATE_SELF);
-		permissions.add(UserPermissions.USER_MODIFY_SELF);
-		permissions.add(UserPermissions.PROJECT_VIEW_PUBLIC);
 		permissions.add(UserPermissions.PROJECT_CREATE);
 		return permissions;
 	}
