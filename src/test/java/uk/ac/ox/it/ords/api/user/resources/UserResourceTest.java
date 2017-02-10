@@ -108,6 +108,11 @@ public class UserResourceTest extends AbstractResourceTest {
 		assertEquals(200, response.getStatus());
 		user = response.readEntity(User.class);
 		assertEquals("pingu", user.getPrincipalName());
+		//
+		// As user is unverified, we should be restricted from creating anything else
+		//
+		assertEquals(0,user.getMaximumDatabasesPerProject());
+		assertEquals(0, user.getMaximumProjects());
 		
 		assertEquals(200, getClient().path("/"+user.getUserId()).get().getStatus());
 		assertEquals(200, getClient().path(userUri.getPath()).get().getStatus());

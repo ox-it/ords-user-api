@@ -26,10 +26,15 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 
+import uk.ac.ox.it.ords.security.services.RestrictionsService;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "ordsuser")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 	
     private String principalName;
@@ -170,6 +175,26 @@ public class User {
 
 	public void setPasswordRequest(String passwordRequest) {
 		this.passwordRequest = passwordRequest;
+	}
+	
+	//
+	// Returns information on restrictions for UI
+	//
+    @JsonProperty
+	public int getMaximumProjects(){
+		return RestrictionsService.Factory.getInstance().getMaximumNumberOfLiveProjects();
+	}
+    @JsonProperty
+	public int getMaximumDatabasesPerProject(){
+		return RestrictionsService.Factory.getInstance().getMaximumDatabasesPerProject();
+	}
+    @JsonProperty
+	public int getMaximumDatasetsPerDatabase(){
+		return RestrictionsService.Factory.getInstance().getMqxiumumDatasetsPerDatabase();
+	}
+    @JsonProperty
+	public int getMaximumUploadSize(){
+		return RestrictionsService.Factory.getInstance().getMaximumUploadSize();
 	}
 
 }

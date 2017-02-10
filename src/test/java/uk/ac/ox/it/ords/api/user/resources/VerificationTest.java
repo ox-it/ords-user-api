@@ -71,6 +71,10 @@ public class VerificationTest extends AbstractResourceTest {
 		assertEquals(200, response.getStatus());
 		user = response.readEntity(User.class);
 		assertEquals("VERIFIED", user.getStatus());
+		//
+		// Should now be able to create a project
+		//
+		assertEquals(1, user.getMaximumProjects());
 		logout();
 				
 		// Clean up
