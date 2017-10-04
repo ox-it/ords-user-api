@@ -3,11 +3,14 @@ package uk.ac.ox.it.ords.api.user.resources;
 import static org.junit.Assert.*;
 
 import java.net.URI;
+import java.util.List;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
+import uk.ac.ox.it.ords.api.user.model.OtherUser;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.model.User.AccountStatus;
 import uk.ac.ox.it.ords.api.user.services.UserRoleService;
@@ -26,6 +29,113 @@ public class UserResourceTest extends AbstractResourceTest {
 	@Test
 	public void getOtherUserUnauthenticated(){
 		assertEquals(403, getClient().path("/999").get().getStatus());
+	}
+	
+	
+	@Test
+	public void searchOtherUsers(){
+		
+		loginUsingSSO("pingu", "pingu");
+
+		User user = new User();
+		user.setPrincipalName("pingu");
+		user.setName("Pingu");
+		user.setEmail("penguin@mailinator.com");
+		user.setStatus(User.AccountStatus.VERIFIED.name());
+		
+		Response response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI user1 = response.getLocation();
+		
+		logout();
+		
+		response = getClient().path("/").query("q", "ping").get();
+		assertEquals(200, response.getStatus());
+		List<OtherUser> users = response.readEntity(new GenericType<List<OtherUser>>() {});
+		
+		assertEquals(1, users.size());
+		
+		loginUsingSSO("pinga", "pinga");
+
+		user = new User();
+		user.setPrincipalName("pinga");
+		user.setName("Pinga");
+		user.setEmail("penguin2@mailinator.com");
+		user.setStatus(User.AccountStatus.VERIFIED.name());
+		
+		response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI user2 = response.getLocation();
+		
+		logout();
+		
+		response = getClient().path("/").query("q", "ping").get();
+		assertEquals(200, response.getStatus());
+		users = response.readEntity(new GenericType<List<OtherUser>>() {});
+		assertEquals(2, users.size());
+		assertEquals("Pinga", users.get(0).getName());
+		
+		loginUsingSSO("pingo", "pingo");
+
+		user = new User();
+		user.setPrincipalName("pingo");
+		user.setName("Bingo");
+		user.setEmail("penguin3@mailinator.com");
+		user.setStatus(User.AccountStatus.VERIFIED.name());
+		
+		response = getClient().path("/").post(user);
+		assertEquals(201, response.getStatus());
+		URI user3 = response.getLocation();
+		
+		logout();
+		
+		response = getClient().path("/").query("q", "ping").get();
+		assertEquals(200, response.getStatus());
+		users = response.readEntity(new GenericType<List<OtherUser>>() {});
+		assertEquals(2, users.size());
+		assertEquals("Pinga", users.get(0).getName());
+		
+		response = getClient().path("/").query("q", "bing").get();
+		assertEquals(200, response.getStatus());
+		users = response.readEntity(new GenericType<List<OtherUser>>() {});
+		assertEquals(1, users.size());
+		assertEquals("Bingo", users.get(0).getName());
+		
+		response = getClient().path("/").query("q", "ing").get();
+		assertEquals(200, response.getStatus());
+		users = response.readEntity(new GenericType<List<OtherUser>>() {});
+		assertEquals(3, users.size());
+		
+		response = getClient().path("/").query("q", "b").get();
+		assertEquals(200, response.getStatus());
+		users = response.readEntity(new GenericType<List<OtherUser>>() {});
+		assertEquals(1, users.size());
+		assertEquals("Bingo", users.get(0).getName());
+		
+		//
+		// Autocomplete only matches the start of the name, unlike querying
+		//
+		response = getClient().path("/").query("a", "b").get();
+		assertEquals(200, response.getStatus());
+		users = response.readEntity(new GenericType<List<OtherUser>>() {});
+		assertEquals(1, users.size());
+		assertEquals("Bingo", users.get(0).getName());
+		
+		response = getClient().path("/").query("a", "p").get();
+		assertEquals(200, response.getStatus());
+		users = response.readEntity(new GenericType<List<OtherUser>>() {});
+		assertEquals(2, users.size());
+		
+		response = getClient().path("/").query("a", "ing").get();
+		assertEquals(404, response.getStatus());		
+		
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(user1.getPath()).delete().getStatus());
+		assertEquals(200, getClient().path(user2.getPath()).delete().getStatus());
+		assertEquals(200, getClient().path(user3.getPath()).delete().getStatus());
+
+		logout();
 	}
 	
 	@Test
@@ -207,6 +317,17 @@ public class UserResourceTest extends AbstractResourceTest {
 	}
 	
 	@Test
+	public void createUserInvalid(){
+		User user = new User();
+		user.setName("Pingu");
+		user.setPrincipalName("");
+		user.setEmail("");
+		Response response = getClient().path("/").post(user);
+		assertEquals(400, response.getStatus());
+		
+	}
+	
+	@Test
 	public void getUserByNameAndEmail(){
 		loginUsingSSO("pinga", "pinga");
 
@@ -321,6 +442,11 @@ public class UserResourceTest extends AbstractResourceTest {
 		login("pingi", "iamnotapenguin");
 		assertEquals(200, getClient().path("/").get().getStatus());
 
+		logout();
+		
+		// Clean up
+		loginUsingSSO("admin", "admin");
+		assertEquals(200, getClient().path(userUri.getPath()).delete().getStatus());
 		logout();
 		
 	}

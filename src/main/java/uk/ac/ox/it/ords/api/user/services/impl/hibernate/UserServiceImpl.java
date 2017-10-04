@@ -15,16 +15,19 @@
  */
 package uk.ac.ox.it.ords.api.user.services.impl.hibernate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ox.it.ords.api.user.model.OtherUser;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.services.UserAuditService;
 import uk.ac.ox.it.ords.api.user.services.UserRoleService;
@@ -33,7 +36,7 @@ import uk.ac.ox.it.ords.api.user.services.impl.AbstractUserService;
 import uk.ac.ox.it.ords.security.model.UserRole;
 
 public class UserServiceImpl extends AbstractUserService implements UserService {
-	
+
 	private static Logger log = LoggerFactory.getLogger(AbstractUserService.class);
 
 	private SessionFactory sessionFactory;
@@ -42,9 +45,36 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 		this.sessionFactory = sessionFactory;
 	}
 
-
 	public UserServiceImpl() {
 		setSessionFactory (HibernateUtils.getSessionFactory());
+	}
+	
+	@Override
+	public List<OtherUser> getUsers(String q, boolean anywhere) throws Exception {
+		
+		MatchMode matchMode = MatchMode.START;
+		if (anywhere) matchMode = MatchMode.ANYWHERE;
+
+		Session session = this.sessionFactory.getCurrentSession();
+		try {
+			session.beginTransaction();
+			@SuppressWarnings("unchecked")
+			List<User> users = (List<User>) session.createCriteria(User.class).add(Restrictions.ilike("name", q, matchMode)).addOrder(Order.asc("name")).setMaxResults(10).list();
+			session.getTransaction().commit();
+			if (users.size() > 0){
+				ArrayList<OtherUser> otherUsers = new ArrayList<OtherUser>();
+				for (User user : users){
+					otherUsers.add(new OtherUser(user));
+				}
+				return otherUsers;
+			} 
+			return null;
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			throw e;
+		} finally {
+			  HibernateUtils.closeSession();
+		}
 	}
 
 	public User getUserByPrincipalName(String principalname) throws Exception {		

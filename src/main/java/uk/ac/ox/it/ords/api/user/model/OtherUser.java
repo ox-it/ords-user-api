@@ -29,6 +29,10 @@ public class OtherUser {
 		this.name = user.getName();
 	}
 	
+	public OtherUser(){
+		
+	}
+	
     private int userId;
     private String name = "Unknown";
     

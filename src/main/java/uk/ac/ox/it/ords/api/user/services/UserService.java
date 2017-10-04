@@ -15,8 +15,10 @@
  */
 package uk.ac.ox.it.ords.api.user.services;
 
+import java.util.List;
 import java.util.ServiceLoader;
 
+import uk.ac.ox.it.ords.api.user.model.OtherUser;
 import uk.ac.ox.it.ords.api.user.model.User;
 import uk.ac.ox.it.ords.api.user.services.impl.hibernate.UserServiceImpl;
 
@@ -28,6 +30,8 @@ public interface UserService {
 	public void init() throws Exception;
 	
 	public boolean validate(User user);
+	
+	public List<OtherUser> getUsers(String q, boolean anywhere) throws Exception;
 	
 	public User getUserByPrincipalName(String principalname) throws Exception;
 	

@@ -16,6 +16,7 @@
 package uk.ac.ox.it.ords.api.user.resources;
 
 import java.net.URI;
+import java.util.List;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -387,7 +388,7 @@ public class UserResource {
 	 */
 	@ApiOperation(
 			value="Gets a user",
-			notes= "If called without parameters, this returns the currently logged-in user; you can also call this method with either a user name or an email address to return a specific user. Note that when used as a query, a more limited subset of User data is returned."
+			notes= "If called without parameters, this returns the currently logged-in user; you can also call this method with either a user name or an email address to return a specific user, or a query parameter to search for a list of users. Note that when used as a query, a more limited subset of User data is returned."
 	)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "User successfully returned.", response=uk.ac.ox.it.ords.api.user.model.User.class),
@@ -407,9 +408,38 @@ public class UserResource {
 	public Response getUser(
 			@ApiParam(value = "optional user principal name to search for", required = false) @QueryParam("name") final String name,
 			@ApiParam(value = "optional user email address to search for", required = false) @QueryParam("email") final String email,
-			@ApiParam(value = "optional invitation code to search for", required = false) @QueryParam("code") final String code
-
+			@ApiParam(value = "optional invitation code to search for", required = false) @QueryParam("code") final String code,
+			@ApiParam(value = "optional query parameter", required = false) @QueryParam("q") final String q,
+			@ApiParam(value = "optional autocomplete parameter", required = false) @QueryParam("a") final String a
 			) throws Exception{
+		
+		//
+		// If this is a searcb...
+		//
+		if (q != null){
+			
+			List<OtherUser> otherUsers = UserService.Factory.getInstance().getUsers(q, true);
+			
+			if (otherUsers == null){
+				return Response.status(404).build();
+			}
+			
+			return Response.ok(otherUsers).build();
+		}
+		
+		//
+		// If this is autocomplete...
+		//
+		if (a != null){
+			
+			List<OtherUser> otherUsers = UserService.Factory.getInstance().getUsers(a, false);
+			
+			if (otherUsers == null){
+				return Response.status(404).build();
+			}
+			
+			return Response.ok(otherUsers).build();
+		}
 		
 		//
 		// If this is a query by principal name...
