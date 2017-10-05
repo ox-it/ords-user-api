@@ -48,12 +48,23 @@ public class UserResourceTest extends AbstractResourceTest {
 		URI user1 = response.getLocation();
 		
 		logout();
+
+		// Check we need to be logged in to search
+		response = getClient().path("/").query("q", "ping").get();
+		assertEquals(403, response.getStatus());
+		
+		loginUsingSSO("pingu", "pingu");
+		
+		// No matches
+		response = getClient().path("/").query("q", "baa").get();
+		assertEquals(404, response.getStatus());
 		
 		response = getClient().path("/").query("q", "ping").get();
 		assertEquals(200, response.getStatus());
 		List<OtherUser> users = response.readEntity(new GenericType<List<OtherUser>>() {});
 		
 		assertEquals(1, users.size());
+		logout();
 		
 		loginUsingSSO("pinga", "pinga");
 
@@ -69,11 +80,13 @@ public class UserResourceTest extends AbstractResourceTest {
 		
 		logout();
 		
+		loginUsingSSO("pingu", "pingu");
 		response = getClient().path("/").query("q", "ping").get();
 		assertEquals(200, response.getStatus());
 		users = response.readEntity(new GenericType<List<OtherUser>>() {});
 		assertEquals(2, users.size());
 		assertEquals("Pinga", users.get(0).getName());
+		logout();
 		
 		loginUsingSSO("pingo", "pingo");
 
@@ -89,6 +102,7 @@ public class UserResourceTest extends AbstractResourceTest {
 		
 		logout();
 		
+		loginUsingSSO("pingu", "pingu");
 		response = getClient().path("/").query("q", "ping").get();
 		assertEquals(200, response.getStatus());
 		users = response.readEntity(new GenericType<List<OtherUser>>() {});
@@ -111,10 +125,17 @@ public class UserResourceTest extends AbstractResourceTest {
 		users = response.readEntity(new GenericType<List<OtherUser>>() {});
 		assertEquals(1, users.size());
 		assertEquals("Bingo", users.get(0).getName());
+		logout();
 		
 		//
 		// Autocomplete only matches the start of the name, unlike querying
 		//
+		
+		// Check we need a user logged in to conduct a search
+		response = getClient().path("/").query("a", "b").get();
+		assertEquals(403, response.getStatus());
+		
+		loginUsingSSO("pingu", "pingu");
 		response = getClient().path("/").query("a", "b").get();
 		assertEquals(200, response.getStatus());
 		users = response.readEntity(new GenericType<List<OtherUser>>() {});
@@ -127,7 +148,8 @@ public class UserResourceTest extends AbstractResourceTest {
 		assertEquals(2, users.size());
 		
 		response = getClient().path("/").query("a", "ing").get();
-		assertEquals(404, response.getStatus());		
+		assertEquals(404, response.getStatus());	
+		logout();
 		
 		// Clean up
 		loginUsingSSO("admin", "admin");

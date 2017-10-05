@@ -418,6 +418,14 @@ public class UserResource {
 		//
 		if (q != null){
 			
+			//
+			// A user must be logged in
+			// 
+			if (!SecurityUtils.getSubject().isAuthenticated()){
+				UserAuditService.Factory.getInstance().createNotAuthRecord("User:query", null);
+				return Response.status(403).build();
+			}
+			
 			List<OtherUser> otherUsers = UserService.Factory.getInstance().getUsers(q, true);
 			
 			if (otherUsers == null){
@@ -431,6 +439,14 @@ public class UserResource {
 		// If this is autocomplete...
 		//
 		if (a != null){
+			
+			//
+			// A user must be logged in
+			// 
+			if (!SecurityUtils.getSubject().isAuthenticated()){
+				UserAuditService.Factory.getInstance().createNotAuthRecord("User:query", null);
+				return Response.status(403).build();
+			}
 			
 			List<OtherUser> otherUsers = UserService.Factory.getInstance().getUsers(a, false);
 			
